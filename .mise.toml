@@ -1,0 +1,34 @@
+[tools]
+go = "1.25"
+"go:github.com/daixiang0/gci" = "latest"
+"ubi:golangci/golangci-lint" = "2.5"
+"ubi:goreleaser/goreleaser" = "2.12"
+
+[env]
+CGO_ENABLED=0
+
+[tasks.vendor]
+description = "Vendor resets the main module's vendor directory to include all packages needed to build the application"
+run = "go mod vendor"
+
+[tasks.tidy]
+description = "Tidy makes sure go.mod matches the source code in the module"
+run = "go mod tidy"
+
+[tasks.build]
+description = "Build the application"
+run = '''
+go build -o bin/tl -ldflags="-extldflags '-static' -X github.com/previousnext/tl-go/cmd.version=$(git describe --tags --always)" github.com/previousnext/tl-go
+'''
+
+[tasks.lint]
+description = "Linting automatically checks code for errors and style issues"
+run = "golangci-lint run"
+
+[tasks.test]
+description = "Checks to verify code correctness"
+run = "go test -cover ./..."
+
+[tasks.release]
+description = "Release the command line interface"
+run = "goreleaser"

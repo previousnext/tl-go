@@ -30,12 +30,12 @@ func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 			}
 
 			w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 1, ' ', 0)
-			fmt.Fprintln(w, "ID\tIssue Key\tDuration\tDescription")
-			fmt.Fprintln(w, "--\t---------\t--------\t-----------")
+			_, _ = fmt.Fprintln(w, "ID\tIssue Key\tDuration\tDescription")
+			_, _ = fmt.Fprintln(w, "--\t---------\t--------\t-----------")
 			for _, entry := range entries {
-				fmt.Fprintf(w, "%d\t%s\t%s\t%s\n", entry.ID, entry.IssueKey, model.FormatDuration(entry.Duration), entry.Description)
+				_, _ = fmt.Fprintf(w, "%d\t%s\t%s\t%s\n", entry.ID, entry.IssueKey, model.FormatDuration(entry.Duration), entry.Description)
 			}
-			w.Flush()
+			_ = w.Flush()
 			return nil
 		},
 	}

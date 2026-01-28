@@ -29,18 +29,18 @@ func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 			entry, err := r().FindTimeEntry(uint(id))
 			if err != nil {
 				if errors.Is(err, gorm.ErrRecordNotFound) {
-					fmt.Fprintf(cmd.OutOrStdout(), "No entry with ID %d\n", id)
+					_, _ = fmt.Fprintf(cmd.OutOrStdout(), "No entry with ID %d\n", id)
 					return nil
 				}
 				return err
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Time Entry ID:\t%d\n", entry.ID)
-			fmt.Fprintf(cmd.OutOrStdout(), "Issue Key:\t%s\n", entry.IssueKey)
-			fmt.Fprintf(cmd.OutOrStdout(), "Duration:\t%s\n", model.FormatDuration(entry.Duration))
-			fmt.Fprintf(cmd.OutOrStdout(), "Description:\t%s\n", entry.Description)
-			fmt.Fprintf(cmd.OutOrStdout(), "Created At:\t%s\n", model.FormatDateTime(entry.CreatedAt))
-			fmt.Fprintf(cmd.OutOrStdout(), "Updated At:\t%s\n", model.FormatDateTime(entry.UpdatedAt))
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Time Entry ID:\t%d\n", entry.ID)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Issue Key:\t%s\n", entry.IssueKey)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Duration:\t%s\n", model.FormatDuration(entry.Duration))
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Description:\t%s\n", entry.Description)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Created At:\t%s\n", model.FormatDateTime(entry.CreatedAt))
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Updated At:\t%s\n", model.FormatDateTime(entry.UpdatedAt))
 			return nil
 		},
 	}

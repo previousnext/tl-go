@@ -42,7 +42,7 @@ func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 				return err
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Added time entry: ID=%d,", entry.ID)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Added time entry: ID=%d,", entry.ID)
 
 			return nil
 		},

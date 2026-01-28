@@ -47,7 +47,7 @@ func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 				return fmt.Errorf("update failed: %w", err)
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Updated time entry with ID %d\n", id)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Updated time entry with ID %d\n", id)
 
 			return nil
 		},

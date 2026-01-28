@@ -27,7 +27,7 @@ func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Deleted time entry with ID %d\n", id)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Deleted time entry with ID %d\n", id)
 			return nil
 		},
 	}

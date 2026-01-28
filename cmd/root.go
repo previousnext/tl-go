@@ -1,6 +1,3 @@
-/*
-Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -23,10 +20,16 @@ import (
 var cfgFile string
 var dbFile string
 
+// version overridden at build time by:
+//
+//	-ldflags="-X github.com/previousnext/tl-go/cmd.Version=${VERSION}"
+var version string
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "tl",
-	Short: "A command line too for logging time.",
+	Use:     "tl",
+	Short:   "A command line too for logging time.",
+	Version: version,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

@@ -26,7 +26,7 @@ func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := r().InitRepository()
 			cobra.CheckErr(err)
-			fmt.Fprintln(cmd.OutOrStdout(), "Successfully initialized repository")
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), "Successfully initialized repository")
 			return nil
 		},
 	}
