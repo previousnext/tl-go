@@ -17,6 +17,7 @@ import (
 	"github.com/previousnext/tl-go/cmd/setup"
 	"github.com/previousnext/tl-go/cmd/show"
 	"github.com/previousnext/tl-go/cmd/update"
+	"github.com/previousnext/tl-go/internal/db"
 )
 
 var cfgFile string
@@ -55,12 +56,18 @@ func init() {
 		HiddenDefaultCmd: true,
 	}
 
-	rootCmd.AddCommand(setup.NewCommand())
-	rootCmd.AddCommand(create.NewCommand())
-	rootCmd.AddCommand(show.NewCommand())
-	rootCmd.AddCommand(list.NewCommand())
-	rootCmd.AddCommand(update.NewCommand())
-	rootCmd.AddCommand(delete.NewCommand())
+	// We need to lazy initialize the repository to ensure that the
+	// configuration is loaded before we create the repository.
+	r := func() db.RepositoryInterface {
+		return db.NewRepository(viper.GetString("db_file"))
+	}
+
+	rootCmd.AddCommand(setup.NewCommand(r))
+	rootCmd.AddCommand(create.NewCommand(r))
+	rootCmd.AddCommand(show.NewCommand(r))
+	rootCmd.AddCommand(list.NewCommand(r))
+	rootCmd.AddCommand(update.NewCommand(r))
+	rootCmd.AddCommand(delete.NewCommand(r))
 }
 
 // initConfig reads in config file and ENV variables if set.

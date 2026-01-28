@@ -6,15 +6,13 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"gorm.io/gorm"
 
 	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/model"
 )
 
-func NewCommand() *cobra.Command {
-
+func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "show",
 		Args:                  cobra.ExactArgs(1),
@@ -24,26 +22,25 @@ func NewCommand() *cobra.Command {
 		Example: `  # Show details of a time entry with ID 123
   tl show 123`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			r := db.NewRepository(viper.GetString("db_file"))
 			id, err := strconv.Atoi(args[0])
 			if err != nil {
 				return err
 			}
-			entry, err := r.FindTimeEntry(uint(id))
+			entry, err := r().FindTimeEntry(uint(id))
 			if err != nil {
 				if errors.Is(err, gorm.ErrRecordNotFound) {
-					fmt.Printf("No entry with ID %d\n", id)
+					fmt.Fprintf(cmd.OutOrStdout(), "No entry with ID %d\n", id)
 					return nil
 				}
 				return err
 			}
 
-			fmt.Printf("Time Entry ID:\t%d\n", entry.ID)
-			fmt.Printf("Issue Key:\t%s\n", entry.IssueKey)
-			fmt.Printf("Duration:\t%s\n", model.FormatDuration(entry.Duration))
-			fmt.Printf("Description:\t%s\n", entry.Description)
-			fmt.Printf("Created At:\t%s\n", model.FormatDateTime(entry.CreatedAt))
-			fmt.Printf("Updated At:\t%s\n", model.FormatDateTime(entry.UpdatedAt))
+			fmt.Fprintf(cmd.OutOrStdout(), "Time Entry ID:\t%d\n", entry.ID)
+			fmt.Fprintf(cmd.OutOrStdout(), "Issue Key:\t%s\n", entry.IssueKey)
+			fmt.Fprintf(cmd.OutOrStdout(), "Duration:\t%s\n", model.FormatDuration(entry.Duration))
+			fmt.Fprintf(cmd.OutOrStdout(), "Description:\t%s\n", entry.Description)
+			fmt.Fprintf(cmd.OutOrStdout(), "Created At:\t%s\n", model.FormatDateTime(entry.CreatedAt))
+			fmt.Fprintf(cmd.OutOrStdout(), "Updated At:\t%s\n", model.FormatDateTime(entry.UpdatedAt))
 			return nil
 		},
 	}

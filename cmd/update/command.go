@@ -5,13 +5,12 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/model"
 )
 
-func NewCommand() *cobra.Command {
+func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "update",
 		Args:                  cobra.MinimumNArgs(2),
@@ -21,18 +20,17 @@ func NewCommand() *cobra.Command {
 		Example: `  # Update a time entry with ID 123 to have a duration of 3h and a new description
   tl update 123 3h "Updated description"`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			r := db.NewRepository(viper.GetString("db_file"))
 			id, err := strconv.Atoi(args[0])
 			if err != nil {
-				return err
+				return fmt.Errorf("entry ID should be a positive integer, got: %s", args[0])
 			}
-			entry, err := r.FindTimeEntry(uint(id))
+			repository := r()
+			entry, err := repository.FindTimeEntry(uint(id))
 			if err != nil {
 				return err
 			}
 			if entry == nil {
-				fmt.Printf("No entry with ID %d\n", id)
-				return nil
+				return fmt.Errorf("entry not found with ID: %d", id)
 			}
 
 			dur, err := model.ParseDuration(args[1])
@@ -44,12 +42,12 @@ func NewCommand() *cobra.Command {
 				entry.Description = args[2]
 			}
 
-			err = r.UpdateTimeEntry(entry)
+			err = repository.UpdateTimeEntry(entry)
 			if err != nil {
-				return err
+				return fmt.Errorf("update failed: %w", err)
 			}
 
-			fmt.Printf("Updated time entry with ID %d\n", id)
+			fmt.Fprintf(cmd.OutOrStdout(), "Updated time entry with ID %d\n", id)
 
 			return nil
 		},

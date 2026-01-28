@@ -1,8 +1,9 @@
 package setup
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/previousnext/tl-go/internal/db"
 )
@@ -14,7 +15,7 @@ var (
   tl init`
 )
 
-func NewCommand() *cobra.Command {
+func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "init",
 		Args:                  cobra.NoArgs,
@@ -23,10 +24,9 @@ func NewCommand() *cobra.Command {
 		Long:                  cmdLong,
 		Example:               cmdExample,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Initialize the db
-			r := db.NewRepository(viper.GetString("db_file"))
-			err := r.InitRepository()
+			err := r().InitRepository()
 			cobra.CheckErr(err)
+			fmt.Fprintln(cmd.OutOrStdout(), "Successfully initialized repository")
 			return nil
 		},
 	}

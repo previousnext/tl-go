@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/model"
@@ -17,8 +16,7 @@ var (
   tl add PNX-123 2h "Worked on feature X"`
 )
 
-func NewCommand() *cobra.Command {
-
+func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "add <issue_key> <duration> [description]",
 		Args:                  cobra.MinimumNArgs(2),
@@ -39,13 +37,12 @@ func NewCommand() *cobra.Command {
 				entry.Description = args[2]
 			}
 
-			r := db.NewRepository(viper.GetString("db_file"))
-			err = r.CreateTimeEntry(entry)
+			err = r().CreateTimeEntry(entry)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("Added time entry: ID=%d,", entry.ID)
+			fmt.Fprintf(cmd.OutOrStdout(), "Added time entry: ID=%d,", entry.ID)
 
 			return nil
 		},

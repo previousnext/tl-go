@@ -5,13 +5,11 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/previousnext/tl-go/internal/db"
 )
 
-func NewCommand() *cobra.Command {
-
+func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "delete <time_entry_id>",
 		Args:                  cobra.ExactArgs(1),
@@ -21,16 +19,15 @@ func NewCommand() *cobra.Command {
 		Example: `  # Delete a time entry with ID 123
   tl delete 123`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			r := db.NewRepository(viper.GetString("db_file"))
 			id, err := strconv.Atoi(args[0])
 			if err != nil {
-				return err
+				return fmt.Errorf("time entry ID must be a positive integer: %s", args[0])
 			}
-			err = r.DeleteTimeEntry(uint(id))
+			err = r().DeleteTimeEntry(uint(id))
 			if err != nil {
 				return err
 			}
-			fmt.Printf("Deleted time entry with ID %d\n", id)
+			fmt.Fprintf(cmd.OutOrStdout(), "Deleted time entry with ID %d\n", id)
 			return nil
 		},
 	}

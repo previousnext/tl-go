@@ -12,6 +12,15 @@ import (
 	"github.com/previousnext/tl-go/internal/model"
 )
 
+type RepositoryInterface interface {
+	InitRepository() error
+	CreateTimeEntry(entry *model.TimeEntry) error
+	FindTimeEntry(id uint) (*model.TimeEntry, error)
+	FindAllTimeEntries() ([]*model.TimeEntry, error)
+	UpdateTimeEntry(entry *model.TimeEntry) error
+	DeleteTimeEntry(id uint) error
+}
+
 type Repository struct {
 	dbPath string
 }
@@ -42,9 +51,9 @@ func (r *Repository) FindTimeEntry(id uint) (*model.TimeEntry, error) {
 	return &entry, nil
 }
 
-func (r *Repository) FindAllTimeEntries() ([]model.TimeEntry, error) {
+func (r *Repository) FindAllTimeEntries() ([]*model.TimeEntry, error) {
 	db := r.openDB()
-	var entries []model.TimeEntry
+	var entries []*model.TimeEntry
 	if err := db.Find(&entries).Error; err != nil {
 		return nil, err
 	}
