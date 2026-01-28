@@ -1,0 +1,26 @@
+name: 🏗️ Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout Code
+        uses: actions/checkout@v6
+
+      - name: 📦 Install Mise
+        run: |
+          curl https://mise.run | sh
+          mise install
+
+      - name: 🧹 Lint
+        run: |
+          mise run lint
+
+      - name: 🧪 Test
+        run: |
+          mise run test

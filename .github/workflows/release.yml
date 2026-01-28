@@ -1,0 +1,27 @@
+name: 🚀 Release
+
+on:
+  push:
+    tags: [ '*' ]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout Code
+        uses: actions/checkout@v6
+
+      - name: 📦 Install Mise
+        run: |
+          curl https://mise.run | sh
+          mise install
+
+      - name: ☁️ Release
+        run: |
+          mise release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
