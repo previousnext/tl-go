@@ -38,12 +38,12 @@ func NewCommand() *cobra.Command {
 				return err
 			}
 
-			fmt.Printf("Time Entry ID: %d\n", entry.ID)
-			fmt.Printf("Issue Key:     %s\n", entry.IssueKey)
-			fmt.Printf("Duration:      %s\n", model.FormatDuration(entry.Duration))
-			fmt.Printf("Description:   %s\n", entry.Description)
-			fmt.Printf("Created At:    %s\n", model.FormatDateTime(entry.CreatedAt))
-			fmt.Printf("Updated At:    %s\n", model.FormatDateTime(entry.UpdatedAt))
+			fmt.Printf("Time Entry ID:\t%d\n", entry.ID)
+			fmt.Printf("Issue Key:\t%s\n", entry.IssueKey)
+			fmt.Printf("Duration:\t%s\n", model.FormatDuration(entry.Duration))
+			fmt.Printf("Description:\t%s\n", entry.Description)
+			fmt.Printf("Created At:\t%s\n", model.FormatDateTime(entry.CreatedAt))
+			fmt.Printf("Updated At:\t%s\n", model.FormatDateTime(entry.UpdatedAt))
 			return nil
 		},
 	}
