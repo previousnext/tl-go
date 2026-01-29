@@ -21,9 +21,6 @@ go build -o bin/tl -ldflags="-extldflags '-static' -X github.com/previousnext/tl
 [tasks.lint]
 run = "golangci-lint run"
 
-[tasks.lint-ci]
-run = "golangci-lint run --out-format=github-actions"
-
 [tasks.test]
 run = "go test -cover ./..."
 
