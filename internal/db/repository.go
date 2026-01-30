@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"gorm.io/driver/sqlite"
+	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
@@ -17,6 +17,7 @@ type RepositoryInterface interface {
 	CreateTimeEntry(entry *model.TimeEntry) error
 	FindTimeEntry(id uint) (*model.TimeEntry, error)
 	FindAllTimeEntries() ([]*model.TimeEntry, error)
+	FindUnsentTimeEntries() ([]*model.TimeEntry, error)
 	UpdateTimeEntry(entry *model.TimeEntry) error
 	DeleteTimeEntry(id uint) error
 }
@@ -60,6 +61,15 @@ func (r *Repository) FindAllTimeEntries() ([]*model.TimeEntry, error) {
 	return entries, nil
 }
 
+func (r *Repository) FindUnsentTimeEntries() ([]*model.TimeEntry, error) {
+	db := r.openDB()
+	var entries []*model.TimeEntry
+	if err := db.Where("sent = ?", false).Find(&entries).Error; err != nil {
+		return nil, err
+	}
+	return entries, nil
+}
+
 func (r *Repository) UpdateTimeEntry(entry *model.TimeEntry) error {
 	db := r.openDB()
 	return db.Save(entry).Error
@@ -83,6 +93,7 @@ func (r *Repository) openDB() *gorm.DB {
 	})
 
 	if err != nil {
+		// golangci-lint-ignore errcheck
 		fmt.Fprintln(os.Stderr, "Error:", err)
 		os.Exit(1)
 	}
