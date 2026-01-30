@@ -10,12 +10,20 @@ import (
 	"github.com/previousnext/tl-go/internal/api/types"
 )
 
+type JiraClientInterface interface {
+	AddWorkLog(worklog types.WorklogRecord) error
+}
+
+type HttpClientInterface interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type JiraClient struct {
-	httpClient types.HttpClientInterface
+	httpClient HttpClientInterface
 	params     types.JiraClientParams
 }
 
-func NewJiraClient(httpClient types.HttpClientInterface, params types.JiraClientParams) *JiraClient {
+func NewJiraClient(httpClient HttpClientInterface, params types.JiraClientParams) *JiraClient {
 	return &JiraClient{
 		httpClient: httpClient,
 		params:     params,

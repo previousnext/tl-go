@@ -12,6 +12,7 @@ type TimeEntry struct {
 	IssueKey    string `gorm:"index"`
 	Duration    uint   // Duration in minutes
 	Description string
+	Sent        bool
 }
 
 func ParseDuration(duration string) (uint, error) {

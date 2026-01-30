@@ -1,13 +1,18 @@
 package mocks
 
-import "github.com/previousnext/tl-go/internal/model"
+import (
+	"github.com/previousnext/tl-go/internal/db"
+	"github.com/previousnext/tl-go/internal/model"
+)
 
 // MockRepository implements db.RepositoryInterface for testing.
 type MockRepository struct {
-	Entries                []*model.TimeEntry
-	FindAllTimeEntriesFunc func() ([]*model.TimeEntry, error)
-	FindTimeEntryFunc      func(id uint) (*model.TimeEntry, error)
-	UpdateTimeEntryFunc    func(entry *model.TimeEntry) error
+	db.RepositoryInterface
+	Entries                   []*model.TimeEntry
+	FindAllTimeEntriesFunc    func() ([]*model.TimeEntry, error)
+	FindUnsentTimeEntriesFunc func() ([]*model.TimeEntry, error)
+	FindTimeEntryFunc         func(id uint) (*model.TimeEntry, error)
+	UpdateTimeEntryFunc       func(entry *model.TimeEntry) error
 }
 
 func (m *MockRepository) InitRepository() error {
@@ -44,4 +49,11 @@ func (m *MockRepository) DeleteTimeEntry(id uint) error {
 		m.Entries = m.Entries[:len(m.Entries)-1]
 	}
 	return nil
+}
+
+func (m *MockRepository) FindUnsentTimeEntries() ([]*model.TimeEntry, error) {
+	if m.FindUnsentTimeEntriesFunc != nil {
+		return m.FindUnsentTimeEntriesFunc()
+	}
+	return nil, nil
 }

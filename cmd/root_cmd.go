@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -11,9 +12,12 @@ import (
 	"github.com/previousnext/tl-go/cmd/create"
 	"github.com/previousnext/tl-go/cmd/delete"
 	"github.com/previousnext/tl-go/cmd/list"
+	"github.com/previousnext/tl-go/cmd/send"
 	"github.com/previousnext/tl-go/cmd/setup"
 	"github.com/previousnext/tl-go/cmd/show"
 	"github.com/previousnext/tl-go/cmd/update"
+	"github.com/previousnext/tl-go/internal/api"
+	"github.com/previousnext/tl-go/internal/api/types"
 	"github.com/previousnext/tl-go/internal/db"
 )
 
@@ -22,13 +26,13 @@ var dbFile string
 
 // version overridden at build time by:
 //
-//	-ldflags="-X github.com/previousnext/tl-go/cmd.Version=${VERSION}"
+//	-ldflags="-X github.com/previousnext/tl-go/cmd.version=$(git describe --tags --always)"
 var version string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:     "tl",
-	Short:   "A command line too for logging time.",
+	Short:   "A command-line tool for logging time.",
 	Version: version,
 }
 
@@ -44,10 +48,6 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ~/.config/tl/config.yaml)")
 	rootCmd.PersistentFlags().StringVar(&dbFile, "db", "", "db file (default is ~/.local/share/tl/db.sqlite)")
 
@@ -59,18 +59,28 @@ func init() {
 		HiddenDefaultCmd: true,
 	}
 
-	// We need to lazy initialize the repository to ensure that the
-	// configuration is loaded before we create the repository.
-	r := func() db.RepositoryInterface {
+	// We need to lazy-initialise injected dependencies so that
+	// viper has a chance to read in the config.
+	repository := func() db.RepositoryInterface {
 		return db.NewRepository(viper.GetString("db_file"))
 	}
+	jiraClient := func() api.JiraClientInterface {
+		params := types.JiraClientParams{
+			BaseURL:  viper.GetString("jira_base_url"),
+			Username: viper.GetString("jira_username"),
+			APIToken: viper.GetString("jira_api_token"),
+		}
+		httpClient := &http.Client{}
+		return api.NewJiraClient(httpClient, params)
+	}
 
-	rootCmd.AddCommand(setup.NewCommand(r))
-	rootCmd.AddCommand(create.NewCommand(r))
-	rootCmd.AddCommand(show.NewCommand(r))
-	rootCmd.AddCommand(list.NewCommand(r))
-	rootCmd.AddCommand(update.NewCommand(r))
-	rootCmd.AddCommand(delete.NewCommand(r))
+	rootCmd.AddCommand(setup.NewCommand(repository))
+	rootCmd.AddCommand(create.NewCommand(repository))
+	rootCmd.AddCommand(show.NewCommand(repository))
+	rootCmd.AddCommand(list.NewCommand(repository))
+	rootCmd.AddCommand(update.NewCommand(repository))
+	rootCmd.AddCommand(delete.NewCommand(repository))
+	rootCmd.AddCommand(send.NewCommand(repository, jiraClient))
 }
 
 // initConfig reads in config file and ENV variables if set.
