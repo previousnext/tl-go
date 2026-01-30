@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -48,8 +49,8 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ~/.config/tl/config.yaml)")
-	rootCmd.PersistentFlags().StringVar(&dbFile, "db", "", "db file (default is ~/.local/share/tl/db.sqlite)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ~/.config/tl/config.yml)")
+	rootCmd.PersistentFlags().StringVar(&dbFile, "db", "", "db file (default is ~/.config/tl/tl/db.sqlite)")
 
 	// Hide the help command.
 	rootCmd.SetHelpCommand(&cobra.Command{Hidden: true})
@@ -61,10 +62,10 @@ func init() {
 
 	// We need to lazy-initialise injected dependencies so that
 	// viper has a chance to read in the config.
-	repository := func() db.RepositoryInterface {
+	repositoryFunc := func() db.RepositoryInterface {
 		return db.NewRepository(viper.GetString("db_file"))
 	}
-	jiraClient := func() api.JiraClientInterface {
+	jiraClientFunc := func() api.JiraClientInterface {
 		params := types.JiraClientParams{
 			BaseURL:  viper.GetString("jira_base_url"),
 			Username: viper.GetString("jira_username"),
@@ -74,13 +75,13 @@ func init() {
 		return api.NewJiraClient(httpClient, params)
 	}
 
-	rootCmd.AddCommand(setup.NewCommand(repository))
-	rootCmd.AddCommand(create.NewCommand(repository))
-	rootCmd.AddCommand(show.NewCommand(repository))
-	rootCmd.AddCommand(list.NewCommand(repository))
-	rootCmd.AddCommand(update.NewCommand(repository))
-	rootCmd.AddCommand(delete.NewCommand(repository))
-	rootCmd.AddCommand(send.NewCommand(repository, jiraClient))
+	rootCmd.AddCommand(setup.NewCommand(repositoryFunc))
+	rootCmd.AddCommand(create.NewCommand(repositoryFunc))
+	rootCmd.AddCommand(show.NewCommand(repositoryFunc))
+	rootCmd.AddCommand(list.NewCommand(repositoryFunc))
+	rootCmd.AddCommand(update.NewCommand(repositoryFunc))
+	rootCmd.AddCommand(delete.NewCommand(repositoryFunc))
+	rootCmd.AddCommand(send.NewCommand(repositoryFunc, jiraClientFunc))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -99,30 +100,42 @@ func initConfig() {
 
 		// Search config in user config + tl directory with name "config" (without extension).
 		viper.AddConfigPath(configPath)
-		viper.SetConfigType("yaml")
+		viper.SetConfigType("yml")
 		viper.SetConfigName("config")
-	}
 
-	if dbFile != "" {
-		// Use the db file from the flag.
-		viper.Set("db_file", dbFile)
-	} else {
-		// Find userDataDir directory.
-		userDataDir, err := os.UserConfigDir()
-		cobra.CheckErr(err)
-		dataPath := filepath.Join(userDataDir, "tl")
+		configFile := filepath.Join(configPath, "config.yml")
 
-		err = os.MkdirAll(dataPath, 0755)
-		cobra.CheckErr(err)
+		// Check if the config file exists.
+		err = viper.ReadInConfig()
+		if err != nil {
+			// Create default config file.
+			viper.SetConfigFile(configFile)
+			if err := viper.SafeWriteConfig(); err != nil {
+				log.Fatalf("Fatal error writing default config file: %v", err)
+			}
+		}
 
-		// Set the db file path.
-		viper.Set("db_file", filepath.Join(dataPath, "db.sqlite"))
-	}
+		if dbFile != "" {
+			// Use the db file from the flag.
+			viper.Set("db_file", dbFile)
+		} else {
+			// Find userDataDir directory.
+			userDataDir, err := os.UserConfigDir()
+			cobra.CheckErr(err)
+			dataPath := filepath.Join(userDataDir, "tl")
 
-	viper.AutomaticEnv() // read in environment variables that match
+			err = os.MkdirAll(dataPath, 0755)
+			cobra.CheckErr(err)
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+			// Set the db file path.
+			viper.Set("db_file", filepath.Join(dataPath, "db.sqlite"))
+		}
+
+		viper.AutomaticEnv() // read in environment variables that match
+
+		// If a config file is found, read it in.
+		if err := viper.ReadInConfig(); err == nil {
+			fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		}
 	}
 }
