@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"text/template"
@@ -21,6 +22,10 @@ type HttpClientInterface interface {
 type JiraClient struct {
 	httpClient HttpClientInterface
 	params     types.JiraClientParams
+}
+
+type ErrorResponse struct {
+	ErrorMessages []string `json:"errorMessages"`
 }
 
 func NewJiraClient(httpClient HttpClientInterface, params types.JiraClientParams) *JiraClient {
@@ -50,7 +55,13 @@ func (c *JiraClient) AddWorkLog(worklog types.WorklogRecord) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusCreated {
-		return fmt.Errorf("failed to create worklog for issue %s: received status code %d", worklog.IssueKey, resp.StatusCode)
+		var errorResp ErrorResponse
+		err = json.NewDecoder(resp.Body).Decode(&errorResp)
+		if err != nil {
+			return fmt.Errorf("error decoding JSON: %w", err)
+		}
+		errMsg := errorResp.ErrorMessages[0]
+		return fmt.Errorf("failed to create worklog for issue %s: [%d] %s", worklog.IssueKey, resp.StatusCode, errMsg)
 	}
 
 	return nil
@@ -74,7 +85,7 @@ func generateWorklogPayload(worklog types.WorklogRecord) (bytes.Buffer, error) {
     "version": 1
   },
   "started": "{{ .started }}",
-  "timeSpentSeconds": {{ .timeSpentSeconds }},
+  "timeSpentSeconds": {{ .timeSpentSeconds }}
 }`
 	var buf bytes.Buffer
 
