@@ -29,7 +29,7 @@ func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 		Long:                  cmdLong,
 		Example:               cmdExample,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			err := r().InitRepository()
+			err := r().AutoMigrate()
 			if err != nil {
 				return err
 			}

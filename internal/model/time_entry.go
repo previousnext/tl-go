@@ -9,8 +9,10 @@ import (
 
 type TimeEntry struct {
 	gorm.Model
-	IssueKey    string `gorm:"index"`
-	Duration    uint   // Duration in minutes
+	IssueKey    string  `gorm:"index"`
+	IssueID     *string `gorm:"index"`
+	Issue       *Issue  `gorm:"foreignkey:IssueID"`
+	Duration    uint    // Duration in minutes
 	Description string
 	Sent        bool
 }

@@ -23,7 +23,7 @@ func TestNewCommand_PrintsEntriesInTable(t *testing.T) {
 			}, nil
 		},
 	}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)

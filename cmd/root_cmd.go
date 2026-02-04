@@ -65,6 +65,9 @@ func init() {
 	repositoryFunc := func() db.RepositoryInterface {
 		return db.NewRepository(viper.GetString("db_file"))
 	}
+	timeEntriesFunc := func() db.TimeEntriesInterface {
+		return db.NewRepository(viper.GetString("db_file"))
+	}
 	jiraClientFunc := func() api.JiraClientInterface {
 		params := types.JiraClientParams{
 			BaseURL:  viper.GetString("jira_base_url"),
@@ -76,12 +79,12 @@ func init() {
 	}
 
 	rootCmd.AddCommand(setup.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(create.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(show.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(list.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(update.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(delete.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(send.NewCommand(repositoryFunc, jiraClientFunc))
+	rootCmd.AddCommand(create.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(show.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(list.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(update.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(delete.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(send.NewCommand(timeEntriesFunc, jiraClientFunc))
 }
 
 // initConfig reads in config file and ENV variables if set.

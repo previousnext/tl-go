@@ -16,7 +16,7 @@ var (
   tl add PNX-123 2h "Worked on feature X"`
 )
 
-func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
+func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "add <issue_key> <duration> [description]",
 		Args:                  cobra.MinimumNArgs(2),

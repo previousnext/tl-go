@@ -13,13 +13,7 @@ import (
 )
 
 type RepositoryInterface interface {
-	InitRepository() error
-	CreateTimeEntry(entry *model.TimeEntry) error
-	FindTimeEntry(id uint) (*model.TimeEntry, error)
-	FindAllTimeEntries() ([]*model.TimeEntry, error)
-	FindUnsentTimeEntries() ([]*model.TimeEntry, error)
-	UpdateTimeEntry(entry *model.TimeEntry) error
-	DeleteTimeEntry(id uint) error
+	AutoMigrate() error
 }
 
 type Repository struct {
@@ -30,54 +24,13 @@ func NewRepository(dbPath string) *Repository {
 	return &Repository{dbPath: dbPath}
 }
 
-func (r *Repository) InitRepository() error {
+func (r *Repository) AutoMigrate() error {
 	db := r.openDB()
-	return db.AutoMigrate(&model.TimeEntry{})
-}
-
-func (r *Repository) CreateTimeEntry(entry *model.TimeEntry) error {
-	db := r.openDB()
-	if err := db.Create(&entry).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *Repository) FindTimeEntry(id uint) (*model.TimeEntry, error) {
-	db := r.openDB()
-	var entry model.TimeEntry
-	if err := db.First(&entry, id).Error; err != nil {
-		return nil, err
-	}
-	return &entry, nil
-}
-
-func (r *Repository) FindAllTimeEntries() ([]*model.TimeEntry, error) {
-	db := r.openDB()
-	var entries []*model.TimeEntry
-	if err := db.Find(&entries).Error; err != nil {
-		return nil, err
-	}
-	return entries, nil
-}
-
-func (r *Repository) FindUnsentTimeEntries() ([]*model.TimeEntry, error) {
-	db := r.openDB()
-	var entries []*model.TimeEntry
-	if err := db.Where("sent = ?", false).Find(&entries).Error; err != nil {
-		return nil, err
-	}
-	return entries, nil
-}
-
-func (r *Repository) UpdateTimeEntry(entry *model.TimeEntry) error {
-	db := r.openDB()
-	return db.Save(entry).Error
-}
-
-func (r *Repository) DeleteTimeEntry(id uint) error {
-	db := r.openDB()
-	return db.Delete(&model.TimeEntry{}, id).Error
+	return db.AutoMigrate(
+		&model.TimeEntry{},
+		&model.Issue{},
+		&model.Project{},
+	)
 }
 
 func (r *Repository) openDB() *gorm.DB {

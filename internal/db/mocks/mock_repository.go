@@ -5,9 +5,9 @@ import (
 	"github.com/previousnext/tl-go/internal/model"
 )
 
-// MockRepository implements db.RepositoryInterface for testing.
+// MockRepository implements db.TimeEntriesInterface for testing.
 type MockRepository struct {
-	db.RepositoryInterface
+	db.TimeEntriesInterface
 	Entries                   []*model.TimeEntry
 	FindAllTimeEntriesFunc    func() ([]*model.TimeEntry, error)
 	FindUnsentTimeEntriesFunc func() ([]*model.TimeEntry, error)
@@ -15,7 +15,7 @@ type MockRepository struct {
 	UpdateTimeEntryFunc       func(entry *model.TimeEntry) error
 }
 
-func (m *MockRepository) InitRepository() error {
+func (m *MockRepository) AutoMigrate() error {
 	return nil
 }
 func (m *MockRepository) CreateTimeEntry(entry *model.TimeEntry) error {

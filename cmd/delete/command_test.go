@@ -12,7 +12,7 @@ import (
 
 func TestNewCommand_DeletesEntryAndPrintsMessage(t *testing.T) {
 	mock := &mocks.MockRepository{}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
@@ -25,7 +25,7 @@ func TestNewCommand_DeletesEntryAndPrintsMessage(t *testing.T) {
 
 func TestNewCommand_InvalidID_ReturnsError(t *testing.T) {
 	mock := &mocks.MockRepository{}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	cmd.SetArgs([]string{"notanumber"})
 	err := cmd.Execute()
