@@ -49,11 +49,11 @@ func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&jiraURL, "jira-url", "", "Jira URL")
-	cmd.Flags().StringVar(&username, "username", "", "Jira username")
-	cmd.Flags().StringVar(&token, "token", "", "Jira API token")
-	_ = cmd.MarkFlagRequired("username")
-	_ = cmd.MarkFlagRequired("token")
 	_ = cmd.MarkFlagRequired("jira-url")
+	cmd.Flags().StringVar(&username, "username", "", "Jira username")
+	_ = cmd.MarkFlagRequired("username")
+	cmd.Flags().StringVar(&token, "token", "", "Jira API token")
+	_ = cmd.MarkFlagRequired("token")
 
 	return cmd
 }
