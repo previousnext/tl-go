@@ -1,9 +1,7 @@
 package setup
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -15,16 +13,19 @@ import (
 var (
 	cmdLong    = `Initialize the tl configuration file and database.`
 	cmdExample = `
-  # Initialize tl
-  tl init`
+  # Setup tl
+  tl setup --jira-url https://your-domain.atlassian.net --username yourusername --token yourapitoken`
+	jiraURL  string
+	username string
+	token    string
 )
 
 func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "init",
+		Use:                   "setup",
 		Args:                  cobra.NoArgs,
 		DisableFlagsInUseLine: true,
-		Short:                 "Initialize tl",
+		Short:                 "Setup tl database and configuration",
 		Long:                  cmdLong,
 		Example:               cmdExample,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -33,26 +34,7 @@ func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 				return err
 			}
 
-			reader := bufio.NewReader(os.Stdin)
-			fmt.Print("Enter the Jira URL: ")
-			url, err := reader.ReadString('\n')
-			if err != nil {
-				return err
-			}
-
-			fmt.Print("Enter the Jira username: ")
-			username, err := reader.ReadString('\n')
-			if err != nil {
-				return err
-			}
-
-			fmt.Print("Enter the Jira API token: ")
-			token, err := reader.ReadString('\n')
-			if err != nil {
-				return err
-			}
-
-			viper.Set("jira_base_url", strings.TrimSpace(url))
+			viper.Set("jira_base_url", strings.TrimSpace(jiraURL))
 			viper.Set("jira_username", strings.TrimSpace(username))
 			viper.Set("jira_api_token", strings.TrimSpace(token))
 
@@ -65,6 +47,13 @@ func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVar(&jiraURL, "jira-url", "", "Jira URL")
+	cmd.Flags().StringVar(&username, "username", "", "Jira username")
+	cmd.Flags().StringVar(&token, "token", "", "Jira API token")
+	_ = cmd.MarkFlagRequired("username")
+	_ = cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("jira-url")
 
 	return cmd
 }
