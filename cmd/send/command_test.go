@@ -27,7 +27,7 @@ func TestListUnsentEntries(t *testing.T) {
 	}
 
 	cmd := NewCommand(
-		func() db.RepositoryInterface { return mockRepo },
+		func() db.TimeEntriesInterface { return mockRepo },
 		func() api.JiraClientInterface { return &mock.JiraClient{} },
 	)
 	var buf bytes.Buffer
@@ -49,7 +49,7 @@ func TestListUnsentEntries_NoEntries(t *testing.T) {
 	}
 
 	cmd := NewCommand(
-		func() db.RepositoryInterface { return mockRepo },
+		func() db.TimeEntriesInterface { return mockRepo },
 		func() api.JiraClientInterface { return &mock.JiraClient{} },
 	)
 	var buf bytes.Buffer

@@ -12,7 +12,7 @@ import (
 	"github.com/previousnext/tl-go/internal/model"
 )
 
-func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
+func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "show",
 		Args:                  cobra.ExactArgs(1),

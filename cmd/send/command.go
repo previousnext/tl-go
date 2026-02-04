@@ -11,7 +11,7 @@ import (
 	"github.com/previousnext/tl-go/internal/db"
 )
 
-func NewCommand(r func() db.RepositoryInterface, j func() api.JiraClientInterface) *cobra.Command {
+func NewCommand(r func() db.TimeEntriesInterface, j func() api.JiraClientInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "send",
 		Args:                  cobra.NoArgs,

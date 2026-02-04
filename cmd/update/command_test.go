@@ -29,7 +29,7 @@ func TestNewCommand_UpdatesEntryAndPrintsMessage(t *testing.T) {
 			return nil
 		},
 	}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
@@ -46,7 +46,7 @@ func TestNewCommand_EntryNotFound_PrintsNoEntryMessage(t *testing.T) {
 			return nil, nil
 		},
 	}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
@@ -59,7 +59,7 @@ func TestNewCommand_EntryNotFound_PrintsNoEntryMessage(t *testing.T) {
 
 func TestNewCommand_InvalidID_ReturnsError(t *testing.T) {
 	mock := &mocks.MockRepository{}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	cmd.SetArgs([]string{"notanumber", "1h"})
 	err := cmd.Execute()
@@ -74,7 +74,7 @@ func TestNewCommand_InvalidDuration_ReturnsError(t *testing.T) {
 			}, nil
 		},
 	}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	cmd.SetArgs([]string{"1", "notaduration"})
 	err := cmd.Execute()
@@ -93,7 +93,7 @@ func TestNewCommand_RepositoryError_ReturnsError(t *testing.T) {
 			return errors.New("update failed")
 		},
 	}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	cmd.SetArgs([]string{"1", "1h"})
 	err := cmd.Execute()
