@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"fmt"
+	"net/http"
 	"text/template"
 	"time"
 
@@ -15,7 +16,7 @@ func (c *JiraClient) AddWorkLog(worklog types.WorklogRecord) error {
 	if err != nil {
 		return err
 	}
-	respBody, err := c.doPostRequest(url, bodyBuf)
+	respBody, err := c.doRequest(http.MethodPost, url, bodyBuf)
 	if err != nil {
 		return err
 	}
@@ -24,7 +25,7 @@ func (c *JiraClient) AddWorkLog(worklog types.WorklogRecord) error {
 	return nil
 }
 
-func generateWorklogPayload(worklog types.WorklogRecord) (bytes.Buffer, error) {
+func generateWorklogPayload(worklog types.WorklogRecord) (*bytes.Buffer, error) {
 	payloadTmpl := `{
   "comment": {
     "content": [
@@ -48,7 +49,7 @@ func generateWorklogPayload(worklog types.WorklogRecord) (bytes.Buffer, error) {
 
 	t, err := template.New("payload").Parse(payloadTmpl)
 	if err != nil {
-		return buf, fmt.Errorf("failed to parse body template: %w", err)
+		return &buf, fmt.Errorf("failed to parse body template: %w", err)
 	}
 
 	data := map[string]interface{}{
@@ -58,8 +59,8 @@ func generateWorklogPayload(worklog types.WorklogRecord) (bytes.Buffer, error) {
 	}
 
 	if err := t.Execute(&buf, data); err != nil {
-		return buf, fmt.Errorf("failed to execute body template: %w", err)
+		return &buf, fmt.Errorf("failed to execute body template: %w", err)
 	}
 
-	return buf, nil
+	return &buf, nil
 }

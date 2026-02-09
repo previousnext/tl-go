@@ -1,7 +1,6 @@
 package api
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,6 +13,7 @@ import (
 // See https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/
 type JiraClientInterface interface {
 	AddWorkLog(worklog types.WorklogRecord) error
+	BulkFetchIssues(issueKeys []string) (BulkFetchIssuesResponse, error)
 }
 
 type HttpClientInterface interface {
@@ -36,8 +36,8 @@ func NewJiraClient(httpClient HttpClientInterface, params types.JiraClientParams
 	}
 }
 
-func (c *JiraClient) doPostRequest(url string, bodyBuf bytes.Buffer) (io.ReadCloser, error) {
-	req, err := http.NewRequest(http.MethodPost, url, &bodyBuf)
+func (c *JiraClient) doRequest(method, url string, bodyBuf io.Reader) (io.ReadCloser, error) {
+	req, err := http.NewRequest(method, url, bodyBuf)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request for %s: %w", url, err)
 	}

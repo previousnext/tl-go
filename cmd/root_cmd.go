@@ -10,8 +10,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/previousnext/tl-go/cmd/create"
+	"github.com/previousnext/tl-go/cmd/add"
 	"github.com/previousnext/tl-go/cmd/delete"
+	"github.com/previousnext/tl-go/cmd/fetch"
 	"github.com/previousnext/tl-go/cmd/list"
 	"github.com/previousnext/tl-go/cmd/send"
 	"github.com/previousnext/tl-go/cmd/setup"
@@ -20,6 +21,7 @@ import (
 	"github.com/previousnext/tl-go/internal/api"
 	"github.com/previousnext/tl-go/internal/api/types"
 	"github.com/previousnext/tl-go/internal/db"
+	"github.com/previousnext/tl-go/internal/service"
 )
 
 var cfgFile string
@@ -78,13 +80,21 @@ func init() {
 		return api.NewJiraClient(httpClient, params)
 	}
 
+	issueStorageFunc := func() db.IssueStorageInterface {
+		return db.NewRepository(viper.GetString("db_file"))
+	}
+	fetchFunc := func() service.FetchServiceInterface {
+		return service.NewFetchService(issueStorageFunc, jiraClientFunc)
+	}
+
 	rootCmd.AddCommand(setup.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(create.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(add.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(show.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(list.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(update.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(delete.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(send.NewCommand(timeEntriesFunc, jiraClientFunc))
+	rootCmd.AddCommand(fetch.NewCommand(fetchFunc))
 }
 
 // initConfig reads in config file and ENV variables if set.
