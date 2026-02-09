@@ -83,18 +83,18 @@ func init() {
 	issueStorageFunc := func() db.IssueStorageInterface {
 		return db.NewRepository(viper.GetString("db_file"))
 	}
-	fetchFunc := func() service.FetchServiceInterface {
-		return service.NewFetchService(issueStorageFunc, jiraClientFunc)
+	syncFunc := func() service.SyncInterface {
+		return service.NewSync(issueStorageFunc, jiraClientFunc)
 	}
 
 	rootCmd.AddCommand(setup.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(add.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(add.NewCommand(timeEntriesFunc, syncFunc))
 	rootCmd.AddCommand(show.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(list.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(update.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(delete.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(send.NewCommand(timeEntriesFunc, jiraClientFunc))
-	rootCmd.AddCommand(fetch.NewCommand(fetchFunc))
+	rootCmd.AddCommand(fetch.NewCommand(syncFunc))
 }
 
 // initConfig reads in config file and ENV variables if set.

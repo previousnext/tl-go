@@ -35,8 +35,9 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				return err
 			}
 
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Time Entry ID:\t%d\n", entry.ID)
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Issue Key:\t%s\n", entry.IssueKey)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "ID:\t\t%d\n", entry.ID)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Key:\t\t%s\n", entry.IssueKey)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Summary:\t%s\n", entry.Issue.Summary)
 			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Duration:\t%s\n", model.FormatDuration(entry.Duration))
 			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Description:\t%s\n", entry.Description)
 			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Created At:\t%s\n", model.FormatDateTime(entry.CreatedAt))

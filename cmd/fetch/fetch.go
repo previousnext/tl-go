@@ -8,7 +8,7 @@ import (
 	"github.com/previousnext/tl-go/internal/service"
 )
 
-func NewCommand(r func() service.FetchServiceInterface) *cobra.Command {
+func NewCommand(s func() service.SyncInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "fetch",
 		Args:                  cobra.MinimumNArgs(1),
@@ -18,8 +18,7 @@ func NewCommand(r func() service.FetchServiceInterface) *cobra.Command {
 		Example: `  # Fetch issues from Jira
   tl fetch PNX-123 PNX-456`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fetchService := r()
-			err := fetchService.FetchIssues(args)
+			err := s().SyncIssues(args)
 			if err != nil {
 				return err
 			}

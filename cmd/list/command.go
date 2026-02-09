@@ -30,10 +30,10 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 			}
 
 			w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 1, ' ', 0)
-			_, _ = fmt.Fprintln(w, "ID\tIssue Key\tDuration\tDescription")
-			_, _ = fmt.Fprintln(w, "--\t---------\t--------\t-----------")
+			_, _ = fmt.Fprintln(w, "ID\tKey\tSummary\tDuration\tDescription")
+			_, _ = fmt.Fprintln(w, "--\t---\t-------\t--------\t-----------")
 			for _, entry := range entries {
-				_, _ = fmt.Fprintf(w, "%d\t%s\t%s\t%s\n", entry.ID, entry.IssueKey, model.FormatDuration(entry.Duration), entry.Description)
+				_, _ = fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\n", entry.ID, entry.IssueKey, entry.Issue.Summary, model.FormatDuration(entry.Duration), entry.Description)
 			}
 			_ = w.Flush()
 			return nil

@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 // See https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/
 type JiraClientInterface interface {
 	AddWorkLog(worklog types.WorklogRecord) error
+	FetchIssue(issueKey string) (IssueResponse, error)
 	BulkFetchIssues(issueKeys []string) (BulkFetchIssuesResponse, error)
 }
 
@@ -28,6 +30,8 @@ type JiraClient struct {
 type ErrorResponse struct {
 	ErrorMessages []string `json:"errorMessages"`
 }
+
+var ErrNotFound = errors.New("not found")
 
 func NewJiraClient(httpClient HttpClientInterface, params types.JiraClientParams) *JiraClient {
 	return &JiraClient{
@@ -54,6 +58,9 @@ func (c *JiraClient) doRequest(method, url string, bodyBuf io.Reader) (io.ReadCl
 			return nil, fmt.Errorf("error decoding JSON: %w", err)
 		}
 		errMsg := errorResp.ErrorMessages[0]
+		if resp.StatusCode == http.StatusNotFound {
+			return nil, ErrNotFound
+		}
 		return nil, fmt.Errorf("api request failed with status code: [%d] %s", resp.StatusCode, errMsg)
 	}
 	return resp.Body, nil

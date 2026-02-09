@@ -2,11 +2,13 @@ package add
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/model"
+	"github.com/previousnext/tl-go/internal/service"
 )
 
 var (
@@ -16,7 +18,7 @@ var (
   tl add PNX-123 2h "Worked on feature X"`
 )
 
-func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
+func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "add <issue_key> <duration> [description]",
 		Args:                  cobra.MinimumNArgs(2),
@@ -25,12 +27,20 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 		Long:                  cmdLong,
 		Example:               cmdExample,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dur, err := model.ParseDuration(args[1])
+			dur, err := time.ParseDuration(args[1])
 			if err != nil {
 				return fmt.Errorf("invalid duration: %s", args[1])
 			}
+			key := args[0]
+
+			issue, err := s().SyncIssue(key)
+			if err != nil {
+				return err
+			}
+
 			entry := &model.TimeEntry{
-				IssueKey: args[0],
+				IssueKey: key,
+				Issue:    issue,
 				Duration: dur,
 			}
 			if len(args) > 2 {

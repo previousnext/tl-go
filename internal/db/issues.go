@@ -12,6 +12,7 @@ import (
 type IssueStorageInterface interface {
 	FindAllIssues() ([]*model.Issue, error)
 	CreateIssue(issue *model.Issue) error
+	DeleteIssueByKey(key string) error
 	DeleteAllIssues() error
 	FindIssueByKey(key string) (*model.Issue, error)
 }
@@ -41,6 +42,14 @@ func (r *Repository) CreateIssue(issue *model.Issue) error {
 	db := r.openDB()
 	if err := db.Create(&issue).Error; err != nil {
 		return err
+	}
+	return nil
+}
+
+func (r *Repository) DeleteIssueByKey(key string) error {
+	db := r.openDB()
+	if err := db.Where("key = ?", key).Delete(&model.Issue{}).Error; err != nil {
+		return fmt.Errorf("error deleting issue with key %s: %w", key, err)
 	}
 	return nil
 }

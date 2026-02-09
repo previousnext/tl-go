@@ -3,11 +3,11 @@ package update
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/previousnext/tl-go/internal/db"
-	"github.com/previousnext/tl-go/internal/model"
 )
 
 func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
@@ -33,7 +33,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				return fmt.Errorf("entry not found with ID: %d", id)
 			}
 
-			dur, err := model.ParseDuration(args[1])
+			dur, err := time.ParseDuration(args[1])
 			if err != nil {
 				return fmt.Errorf("invalid duration: %s", args[1])
 			}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -18,13 +19,13 @@ func TestNewCommand_UpdatesEntryAndPrintsMessage(t *testing.T) {
 		FindTimeEntryFunc: func(id uint) (*model.TimeEntry, error) {
 			return &model.TimeEntry{
 				Model:       gorm.Model{ID: id},
-				Duration:    60,
+				Duration:    time.Hour,
 				Description: "Old description",
 			}, nil
 		},
 		UpdateTimeEntryFunc: func(entry *model.TimeEntry) error {
 			assert.Equal(t, uint(123), entry.ID)
-			assert.Equal(t, uint(180), entry.Duration)
+			assert.Equal(t, 3*time.Hour, entry.Duration)
 			assert.Equal(t, "Updated description", entry.Description)
 			return nil
 		},

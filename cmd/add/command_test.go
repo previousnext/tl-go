@@ -7,11 +7,16 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/previousnext/tl-go/internal/db"
-	"github.com/previousnext/tl-go/internal/db/mocks"
+	dbmocks "github.com/previousnext/tl-go/internal/db/mocks"
+	"github.com/previousnext/tl-go/internal/service"
+	servicemocks "github.com/previousnext/tl-go/internal/service/mocks"
 )
 
 func TestAdd(t *testing.T) {
-	cmd := NewCommand(func() db.TimeEntriesInterface { return &mocks.MockRepository{} })
+	cmd := NewCommand(
+		func() db.TimeEntriesInterface { return &dbmocks.MockRepository{} },
+		func() service.SyncInterface { return &servicemocks.MockSync{} },
+	)
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
@@ -24,7 +29,10 @@ func TestAdd(t *testing.T) {
 }
 
 func TestAdd_InvalidDuration_ReturnsError(t *testing.T) {
-	cmd := NewCommand(func() db.TimeEntriesInterface { return &mocks.MockRepository{} })
+	cmd := NewCommand(
+		func() db.TimeEntriesInterface { return &dbmocks.MockRepository{} },
+		func() service.SyncInterface { return &servicemocks.MockSync{} },
+	)
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
@@ -36,7 +44,10 @@ func TestAdd_InvalidDuration_ReturnsError(t *testing.T) {
 }
 
 func TestAdd_NoDescription(t *testing.T) {
-	cmd := NewCommand(func() db.TimeEntriesInterface { return &mocks.MockRepository{} })
+	cmd := NewCommand(
+		func() db.TimeEntriesInterface { return &dbmocks.MockRepository{} },
+		func() service.SyncInterface { return &servicemocks.MockSync{} },
+	)
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
