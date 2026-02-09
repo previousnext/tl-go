@@ -10,8 +10,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/previousnext/tl-go/cmd/create"
+	"github.com/previousnext/tl-go/cmd/add"
 	"github.com/previousnext/tl-go/cmd/delete"
+	"github.com/previousnext/tl-go/cmd/fetch"
 	"github.com/previousnext/tl-go/cmd/list"
 	"github.com/previousnext/tl-go/cmd/send"
 	"github.com/previousnext/tl-go/cmd/setup"
@@ -20,6 +21,7 @@ import (
 	"github.com/previousnext/tl-go/internal/api"
 	"github.com/previousnext/tl-go/internal/api/types"
 	"github.com/previousnext/tl-go/internal/db"
+	"github.com/previousnext/tl-go/internal/service"
 )
 
 var cfgFile string
@@ -65,6 +67,9 @@ func init() {
 	repositoryFunc := func() db.RepositoryInterface {
 		return db.NewRepository(viper.GetString("db_file"))
 	}
+	timeEntriesFunc := func() db.TimeEntriesInterface {
+		return db.NewRepository(viper.GetString("db_file"))
+	}
 	jiraClientFunc := func() api.JiraClientInterface {
 		params := types.JiraClientParams{
 			BaseURL:  viper.GetString("jira_base_url"),
@@ -75,13 +80,21 @@ func init() {
 		return api.NewJiraClient(httpClient, params)
 	}
 
+	issueStorageFunc := func() db.IssueStorageInterface {
+		return db.NewRepository(viper.GetString("db_file"))
+	}
+	syncFunc := func() service.SyncInterface {
+		return service.NewSync(issueStorageFunc, jiraClientFunc)
+	}
+
 	rootCmd.AddCommand(setup.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(create.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(show.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(list.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(update.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(delete.NewCommand(repositoryFunc))
-	rootCmd.AddCommand(send.NewCommand(repositoryFunc, jiraClientFunc))
+	rootCmd.AddCommand(add.NewCommand(timeEntriesFunc, syncFunc))
+	rootCmd.AddCommand(show.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(list.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(update.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(delete.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(send.NewCommand(timeEntriesFunc, jiraClientFunc))
+	rootCmd.AddCommand(fetch.NewCommand(syncFunc))
 }
 
 // initConfig reads in config file and ENV variables if set.

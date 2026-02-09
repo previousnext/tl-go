@@ -9,7 +9,7 @@ import (
 	"github.com/previousnext/tl-go/internal/db"
 )
 
-func NewCommand(r func() db.RepositoryInterface) *cobra.Command {
+func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "delete <time_entry_id>",
 		Args:                  cobra.ExactArgs(1),

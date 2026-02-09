@@ -25,12 +25,13 @@ func TestNewCommand_PrintsEntryDetails(t *testing.T) {
 					UpdatedAt: time.Date(2024, 6, 2, 12, 0, 0, 0, time.UTC),
 				},
 				IssueKey:    "PNX-42",
-				Duration:    90, // minutes
+				Issue:       &model.Issue{Summary: "Foo bar"},
+				Duration:    90 * time.Minute,
 				Description: "Worked on something",
 			}, nil
 		},
 	}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
@@ -40,13 +41,13 @@ func TestNewCommand_PrintsEntryDetails(t *testing.T) {
 	assert.NoError(t, err)
 	output := buf.String()
 	fmt.Print(output)
-	assert.Equal(t, `Time Entry ID:	123
-Issue Key:	PNX-42
+	assert.Contains(t, output, `ID:		123
+Key:		PNX-42
+Summary:	Foo bar
 Duration:	1h30m
 Description:	Worked on something
 Created At:	01 Jun 24 10:00 UTC
-Updated At:	02 Jun 24 12:00 UTC
-`, output)
+Updated At:	02 Jun 24 12:00 UTC`)
 }
 
 func TestNewCommand_NotFound_PrintsNoEntryMessage(t *testing.T) {
@@ -55,7 +56,7 @@ func TestNewCommand_NotFound_PrintsNoEntryMessage(t *testing.T) {
 			return nil, gorm.ErrRecordNotFound
 		},
 	}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
@@ -72,7 +73,7 @@ func TestNewCommand_RepositoryError_ReturnsError(t *testing.T) {
 			return nil, errors.New("db error")
 		},
 	}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	cmd.SetArgs([]string{"1"})
 	err := cmd.Execute()
@@ -82,7 +83,7 @@ func TestNewCommand_RepositoryError_ReturnsError(t *testing.T) {
 
 func TestNewCommand_InvalidID_ReturnsError(t *testing.T) {
 	mock := &mocks.MockRepository{}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	cmd.SetArgs([]string{"notanumber"})
 	err := cmd.Execute()

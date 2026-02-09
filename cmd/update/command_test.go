@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -18,18 +19,18 @@ func TestNewCommand_UpdatesEntryAndPrintsMessage(t *testing.T) {
 		FindTimeEntryFunc: func(id uint) (*model.TimeEntry, error) {
 			return &model.TimeEntry{
 				Model:       gorm.Model{ID: id},
-				Duration:    60,
+				Duration:    time.Hour,
 				Description: "Old description",
 			}, nil
 		},
 		UpdateTimeEntryFunc: func(entry *model.TimeEntry) error {
 			assert.Equal(t, uint(123), entry.ID)
-			assert.Equal(t, uint(180), entry.Duration)
+			assert.Equal(t, 3*time.Hour, entry.Duration)
 			assert.Equal(t, "Updated description", entry.Description)
 			return nil
 		},
 	}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
@@ -46,7 +47,7 @@ func TestNewCommand_EntryNotFound_PrintsNoEntryMessage(t *testing.T) {
 			return nil, nil
 		},
 	}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
@@ -59,7 +60,7 @@ func TestNewCommand_EntryNotFound_PrintsNoEntryMessage(t *testing.T) {
 
 func TestNewCommand_InvalidID_ReturnsError(t *testing.T) {
 	mock := &mocks.MockRepository{}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	cmd.SetArgs([]string{"notanumber", "1h"})
 	err := cmd.Execute()
@@ -74,7 +75,7 @@ func TestNewCommand_InvalidDuration_ReturnsError(t *testing.T) {
 			}, nil
 		},
 	}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	cmd.SetArgs([]string{"1", "notaduration"})
 	err := cmd.Execute()
@@ -93,7 +94,7 @@ func TestNewCommand_RepositoryError_ReturnsError(t *testing.T) {
 			return errors.New("update failed")
 		},
 	}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	cmd.SetArgs([]string{"1", "1h"})
 	err := cmd.Execute()

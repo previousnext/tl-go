@@ -9,23 +9,16 @@ import (
 
 type TimeEntry struct {
 	gorm.Model
-	IssueKey    string `gorm:"index"`
-	Duration    uint   // Duration in minutes
+	IssueKey    string        `gorm:"index"`
+	IssueID     uint          `gorm:"index"`
+	Issue       *Issue        `gorm:"foreignkey:IssueID"`
+	Duration    time.Duration // Duration in minutes
 	Description string
 	Sent        bool
 }
 
-func ParseDuration(duration string) (uint, error) {
-	d, err := time.ParseDuration(duration)
-	if err != nil {
-		return 0, err
-	}
-	return uint(d.Minutes()), nil
-}
-
-func FormatDuration(minutes uint) string {
-	duration := time.Duration(minutes) * time.Minute
-	return strings.TrimSuffix(duration.String(), "0s")
+func FormatDuration(dur time.Duration) string {
+	return strings.TrimSuffix(dur.String(), "0s")
 }
 
 func FormatDateTime(t time.Time) string {

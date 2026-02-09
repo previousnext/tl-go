@@ -18,12 +18,24 @@ func TestNewCommand_PrintsEntriesInTable(t *testing.T) {
 	mock := &mocks.MockRepository{
 		FindAllTimeEntriesFunc: func() ([]*model.TimeEntry, error) {
 			return []*model.TimeEntry{
-				{Model: gorm.Model{ID: 1}, IssueKey: "PNX-1", Duration: uint(2 * time.Hour.Minutes()), Description: "Worked on X"},
-				{Model: gorm.Model{ID: 2}, IssueKey: "PNX-2", Duration: uint(30 * time.Minute.Minutes()), Description: "Reviewed Y"},
+				{
+					Model:       gorm.Model{ID: 1},
+					IssueKey:    "PNX-1",
+					Issue:       &model.Issue{Summary: "issue1"},
+					Duration:    2 * time.Hour,
+					Description: "Worked on X",
+				},
+				{
+					Model:       gorm.Model{ID: 2},
+					IssueKey:    "PNX-2",
+					Issue:       &model.Issue{Summary: "issue2"},
+					Duration:    30 * time.Minute,
+					Description: "Reviewed Y",
+				},
 			}, nil
 		},
 	}
-	cmd := NewCommand(func() db.RepositoryInterface { return mock })
+	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
@@ -32,7 +44,9 @@ func TestNewCommand_PrintsEntriesInTable(t *testing.T) {
 	assert.NoError(t, err)
 	output := buf.String()
 	fmt.Print(output)
-	assert.Contains(t, output, "ID Issue Key Duration Description")
-	assert.Contains(t, output, "1  PNX-1     2h0m     Worked on X")
-	assert.Contains(t, output, "2  PNX-2     30m      Reviewed Y")
+	assert.Contains(t, output, `ID Key   Summary Duration Description
+-- ---   ------- -------- -----------
+1  PNX-1 issue1  2h0m     Worked on X
+2  PNX-2 issue2  30m      Reviewed Y
+`)
 }
