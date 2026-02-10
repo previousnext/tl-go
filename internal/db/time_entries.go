@@ -23,7 +23,7 @@ func (r *Repository) CreateTimeEntry(entry *model.TimeEntry) error {
 func (r *Repository) FindTimeEntry(id uint) (*model.TimeEntry, error) {
 	db := r.openDB()
 	var entry model.TimeEntry
-	if err := db.Preload("Issue").First(&entry, id).Error; err != nil {
+	if err := db.Preload("Issue.Project").First(&entry, id).Error; err != nil {
 		return nil, err
 	}
 	return &entry, nil
@@ -32,7 +32,7 @@ func (r *Repository) FindTimeEntry(id uint) (*model.TimeEntry, error) {
 func (r *Repository) FindAllTimeEntries() ([]*model.TimeEntry, error) {
 	db := r.openDB()
 	var entries []*model.TimeEntry
-	if err := db.Preload("Issue").Find(&entries).Error; err != nil {
+	if err := db.Preload("Issue.Project").Find(&entries).Error; err != nil {
 		return nil, err
 	}
 	return entries, nil

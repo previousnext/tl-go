@@ -1,12 +1,14 @@
 package cmd
 
 import (
-	"fmt"
+	"context"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 
+	"charm.land/lipgloss/v2"
+	"github.com/charmbracelet/fang"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -22,6 +24,7 @@ import (
 	"github.com/previousnext/tl-go/internal/api/types"
 	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/service"
+	"github.com/previousnext/tl-go/internal/util"
 )
 
 var cfgFile string
@@ -42,10 +45,34 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	err := rootCmd.Execute()
+	err := fang.Execute(context.Background(), rootCmd, fang.WithColorSchemeFunc(MyColorScheme))
 	if err != nil {
 		os.Exit(1)
 	}
+}
+
+// MyColorScheme customizes the default fang color scheme
+func MyColorScheme(ld lipgloss.LightDarkFunc) fang.ColorScheme {
+	// start from the defaults
+	s := fang.DefaultColorScheme(ld)
+
+	primary := ld(
+		lipgloss.Color(util.HexOrange), // light mode
+		lipgloss.Color(util.HexOrange), // dark mode
+	)
+
+	secondary := ld(
+		lipgloss.Color(util.HexWhite), // light mode
+		lipgloss.Color(util.HexWhite), // dark mode
+	)
+
+	s.Title = primary
+	s.Command = secondary
+	s.Flag = secondary
+
+	s.Program = secondary
+
+	return s
 }
 
 func init() {
@@ -147,8 +174,9 @@ func initConfig() {
 		viper.AutomaticEnv() // read in environment variables that match
 
 		// If a config file is found, read it in.
-		if err := viper.ReadInConfig(); err == nil {
-			fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		err = viper.ReadInConfig()
+		if err != nil {
+			log.Fatalf("Error reading config file: %v\n", err)
 		}
 	}
 }
