@@ -26,3 +26,6 @@ run = "go test -cover ./..."
 
 [tasks.release]
 run = "goreleaser"
+
+[tasks.snapshot-release]
+run = "goreleaser --snapshot --clean --verbose"
