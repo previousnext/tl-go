@@ -2,7 +2,6 @@ package send
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/spf13/cobra"
 
@@ -39,7 +38,7 @@ func NewCommand(r func() db.TimeEntriesInterface, j func() api.JiraClientInterfa
 				worklog := types.WorklogRecord{
 					IssueKey: timeEntry.IssueKey,
 					Started:  timeEntry.CreatedAt,
-					Duration: time.Minute * time.Duration(timeEntry.Duration),
+					Duration: timeEntry.Duration,
 					Comment:  timeEntry.Description,
 				}
 				err := jiraClient.AddWorkLog(worklog)

@@ -51,7 +51,7 @@ func TestNewCommand_PrintsEntryDetails(t *testing.T) {
 	assert.Contains(t, output, "Worked on something")
 	assert.Contains(t, output, "01 Jun 24 10:00 UTC")
 	assert.Contains(t, output, "02 Jun 24 12:00 UTC")
-	assert.Contains(t, output, "false")
+	assert.Contains(t, output, "❌")
 }
 
 func TestNewCommand_NotFound_PrintsNoEntryMessage(t *testing.T) {
