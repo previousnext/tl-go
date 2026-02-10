@@ -2,12 +2,12 @@ package list
 
 import (
 	"fmt"
-	"text/tabwriter"
 
 	"github.com/spf13/cobra"
 
 	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/model"
+	"github.com/previousnext/tl-go/internal/util"
 )
 
 func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
@@ -29,14 +29,29 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				return nil
 			}
 
-			w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 1, ' ', 0)
-			_, _ = fmt.Fprintln(w, "ID\tKey\tSummary\tDuration\tDescription")
-			_, _ = fmt.Fprintln(w, "--\t---\t-------\t--------\t-----------")
-			for _, entry := range entries {
-				_, _ = fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\n", entry.ID, entry.IssueKey, entry.Issue.Summary, model.FormatDuration(entry.Duration), entry.Description)
+			header := []string{
+				"ID",
+				"Key",
+				"Project",
+				"Summary",
+				"Duration",
+				"Description",
 			}
-			_ = w.Flush()
-			return nil
+
+			var rows [][]string
+
+			for _, entry := range entries {
+				rows = append(rows, []string{
+					fmt.Sprintf("%d", entry.ID),
+					entry.IssueKey,
+					entry.Issue.Project.Name,
+					entry.Issue.Summary,
+					model.FormatDuration(entry.Duration),
+					entry.Description,
+				})
+			}
+
+			return util.PrintTable(cmd.OutOrStdout(), header, rows)
 		},
 	}
 

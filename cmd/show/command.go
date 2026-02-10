@@ -10,6 +10,7 @@ import (
 
 	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/model"
+	"github.com/previousnext/tl-go/internal/util"
 )
 
 func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
@@ -35,14 +36,23 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				return err
 			}
 
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "ID:\t\t%d\n", entry.ID)
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Key:\t\t%s\n", entry.IssueKey)
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Summary:\t%s\n", entry.Issue.Summary)
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Duration:\t%s\n", model.FormatDuration(entry.Duration))
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Description:\t%s\n", entry.Description)
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Created At:\t%s\n", model.FormatDateTime(entry.CreatedAt))
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Updated At:\t%s\n", model.FormatDateTime(entry.UpdatedAt))
-			return nil
+			headers := []string{
+				"Field",
+				"Value",
+			}
+			rows := [][]string{
+				{"ID", fmt.Sprintf("%d", entry.ID)},
+				{"Key", entry.IssueKey},
+				{"Summary", entry.Issue.Summary},
+				{"Project", entry.Issue.Project.Name},
+				{"Duration", model.FormatDuration(entry.Duration)},
+				{"Description", entry.Description},
+				{"Created At", model.FormatDateTime(entry.CreatedAt)},
+				{"Updated At", model.FormatDateTime(entry.UpdatedAt)},
+				{"Sent To Jira", strconv.FormatBool(entry.Sent)},
+			}
+
+			return util.PrintTable(cmd.OutOrStdout(), headers, rows)
 		},
 	}
 	return cmd

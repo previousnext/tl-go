@@ -24,8 +24,11 @@ func TestNewCommand_PrintsEntryDetails(t *testing.T) {
 					CreatedAt: time.Date(2024, 6, 1, 10, 0, 0, 0, time.UTC),
 					UpdatedAt: time.Date(2024, 6, 2, 12, 0, 0, 0, time.UTC),
 				},
-				IssueKey:    "PNX-42",
-				Issue:       &model.Issue{Summary: "Foo bar"},
+				IssueKey: "PNX-42",
+				Issue: &model.Issue{
+					Summary: "Foo bar",
+					Project: model.Project{Name: "Project X"},
+				},
 				Duration:    90 * time.Minute,
 				Description: "Worked on something",
 			}, nil
@@ -41,13 +44,14 @@ func TestNewCommand_PrintsEntryDetails(t *testing.T) {
 	assert.NoError(t, err)
 	output := buf.String()
 	fmt.Print(output)
-	assert.Contains(t, output, `ID:		123
-Key:		PNX-42
-Summary:	Foo bar
-Duration:	1h30m
-Description:	Worked on something
-Created At:	01 Jun 24 10:00 UTC
-Updated At:	02 Jun 24 12:00 UTC`)
+	assert.Contains(t, output, "123")
+	assert.Contains(t, output, "PNX-42")
+	assert.Contains(t, output, "Foo bar")
+	assert.Contains(t, output, "1h30m")
+	assert.Contains(t, output, "Worked on something")
+	assert.Contains(t, output, "01 Jun 24 10:00 UTC")
+	assert.Contains(t, output, "02 Jun 24 12:00 UTC")
+	assert.Contains(t, output, "false")
 }
 
 func TestNewCommand_NotFound_PrintsNoEntryMessage(t *testing.T) {
