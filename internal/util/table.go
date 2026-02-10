@@ -43,3 +43,10 @@ func PrintTable(w io.Writer, headers []string, rows [][]string) error {
 
 	return nil
 }
+
+func FormatBool(b bool) string {
+	if b {
+		return "✅"
+	}
+	return "❌"
+}

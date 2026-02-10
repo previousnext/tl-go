@@ -36,6 +36,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				"Summary",
 				"Duration",
 				"Description",
+				"Sent",
 			}
 
 			var rows [][]string
@@ -48,6 +49,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 					entry.Issue.Summary,
 					model.FormatDuration(entry.Duration),
 					entry.Description,
+					util.FormatBool(entry.Sent),
 				})
 			}
 

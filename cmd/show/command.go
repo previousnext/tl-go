@@ -49,7 +49,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				{"Description", entry.Description},
 				{"Created At", model.FormatDateTime(entry.CreatedAt)},
 				{"Updated At", model.FormatDateTime(entry.UpdatedAt)},
-				{"Sent To Jira", strconv.FormatBool(entry.Sent)},
+				{"Sent To Jira", util.FormatBool(entry.Sent)},
 			}
 
 			return util.PrintTable(cmd.OutOrStdout(), headers, rows)
