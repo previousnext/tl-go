@@ -16,11 +16,14 @@ tl setup \
 ## Usage
 
 Basic workflow example:
+
 ```
 tl add PROJ-123 2h "Worked on feature X"
-tl unsent
+tl review
 tl send
 ```
+
+Command reference:
 
 ```
 USAGE
@@ -34,10 +37,10 @@ COMMANDS
     edit <id> [--flags]                 Edit a time entry
     issues [--flags]                    List recent issues
     list [--flags]                      List all time entries
+    review                              Review unsent time entries
     send                                Send time entries to Jira
     setup [--flags]                     Setup tl database and configuration
     show <id>                           Show details of a time entry
-    unsent                              List unsent time entries
 ```
 
 ### Acknowledgements
