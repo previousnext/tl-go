@@ -35,7 +35,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 			dateOutput := "today"
 			if flagDate != "" {
 				var err error
-				d, err = time.Parse("2006-01-02", flagDate)
+				d, err = time.ParseInLocation("2006-01-02", flagDate, time.Local)
 				if err != nil {
 					return fmt.Errorf("invalid d format: %s. Expected YYYY-MM-DD", flagDate)
 				}

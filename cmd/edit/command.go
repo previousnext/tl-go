@@ -58,9 +58,17 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 			if desc != "" {
 				timeEntry.Description = desc
 			}
+			startDate, _ := cmd.Flags().GetString("date")
+			if startDate != "" {
+				t, err := time.ParseInLocation("2006-01-02", startDate, time.Local)
+				if err != nil {
+					return fmt.Errorf("invalid start date: %s", startDate)
+				}
+				timeEntry.CreatedAt = t
+			}
 			// If no changes were specified, print an error message and return
-			if durStr == "" && desc == "" {
-				_, _ = fmt.Fprintln(cmd.OutOrStderr(), "No changes specified. Use --dur and/or --desc to specify changes.")
+			if durStr == "" && desc == "" && startDate == "" {
+				_, _ = fmt.Fprintln(cmd.OutOrStderr(), "No changes specified. Use --dur, --desc and/or --date to specify changes.")
 				return nil
 			}
 
@@ -76,8 +84,9 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringP("dur", "d", "", "New duration (e.g. 2h30m)")
-	cmd.Flags().StringP("desc", "s", "", "New description")
+	cmd.Flags().StringP("dur", "", "", "New duration (e.g. 2h30m)")
+	cmd.Flags().StringP("desc", "", "", "New description")
+	cmd.Flags().StringP("date", "", "", "The date the time entry should be associated with (e.g. 2024-01-02)")
 
 	return cmd
 }
