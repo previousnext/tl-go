@@ -81,7 +81,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ~/.config/tl/config.yml)")
-	rootCmd.PersistentFlags().StringVar(&dbFile, "db", "", "db file (default is ~/.config/tl/tl/db.sqlite)")
+	rootCmd.PersistentFlags().StringVar(&dbFile, "db", "", "db file (default is ~/.config/tl/db.sqlite)")
 
 	// Hide the help command.
 	rootCmd.SetHelpCommand(&cobra.Command{Hidden: true})
