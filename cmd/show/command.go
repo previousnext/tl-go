@@ -52,7 +52,9 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				{"Sent To Jira", util.FormatBool(entry.Sent)},
 			}
 
-			return util.PrintTable(cmd.OutOrStdout(), headers, rows)
+			var footer []string
+
+			return util.PrintTable(cmd.OutOrStdout(), headers, rows, footer)
 		},
 	}
 	return cmd

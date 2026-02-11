@@ -44,7 +44,9 @@ func NewCommand(r func() db.IssueStorageInterface) *cobra.Command {
 				}
 			}
 
-			return util.PrintTable(cmd.OutOrStdout(), headers, rows)
+			var footer []string
+			
+			return util.PrintTable(cmd.OutOrStdout(), headers, rows, footer)
 		},
 	}
 

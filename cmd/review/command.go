@@ -42,27 +42,38 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				"ID",
 				"Created",
 				"Key",
-				"Project",
 				"Summary",
+				"Project",
 				"Duration",
 				"Description",
 			}
 
 			var rows [][]string
 
+			totalDuration := time.Duration(0)
 			for _, entry := range entries {
 				rows = append(rows, []string{
 					fmt.Sprintf("%d", entry.ID),
 					entry.CreatedAt.Format(time.DateOnly),
 					entry.IssueKey,
-					entry.Issue.Project.Name,
 					entry.Issue.Summary,
+					entry.Issue.Project.Name,
 					model.FormatDuration(entry.Duration),
 					entry.Description,
 				})
+				totalDuration += entry.Duration
+			}
+			footer := []string{
+				"",
+				"",
+				"",
+				"",
+				"Total",
+				model.FormatDuration(totalDuration),
+				"",
 			}
 
-			return util.PrintTable(cmd.OutOrStdout(), header, rows)
+			return util.PrintTable(cmd.OutOrStdout(), header, rows, footer)
 		},
 	}
 
