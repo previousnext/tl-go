@@ -1,4 +1,4 @@
-package list
+package unsent
 
 import (
 	"fmt"
@@ -12,17 +12,16 @@ import (
 )
 
 var (
-	cmdShort   = `List all time entries`
-	cmdLong    = `List all time entries in the database.`
-	flagDate   = ""
+	cmdShort   = `List unsent time entries`
+	cmdLong    = `List unsent time entries in the database.`
 	cmdExample = `
   # List all time entries
-  tl list`
+  tl unsent`
 )
 
 func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "list",
+		Use:                   "unsent",
 		Args:                  cobra.NoArgs,
 		DisableFlagsInUseLine: true,
 		Short:                 cmdShort,
@@ -30,38 +29,23 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 		Example:               cmdExample,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			// Default to today's date if no date flag is provided
-			d := time.Now()
-			dateOutput := "today"
-			if flagDate != "" {
-				var err error
-				d, err = time.Parse("2006-01-02", flagDate)
-				if err != nil {
-					return fmt.Errorf("invalid d format: %s. Expected YYYY-MM-DD", flagDate)
-				}
-				dateOutput = flagDate
-			}
-
-			entries, err := r().FindAllTimeEntries(d)
+			entries, err := r().FindUnsentTimeEntries()
 			if err != nil {
 				return err
 			}
 
 			if len(entries) == 0 {
-				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "No time entries found for %s.\n", dateOutput)
+				cmd.Println("No unsent time entries found.")
 				return nil
 			}
-
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Found %d time entries for %s.\n", len(entries), dateOutput)
-
 			header := []string{
 				"ID",
+				"Created",
 				"Key",
 				"Project",
 				"Summary",
 				"Duration",
 				"Description",
-				"Sent",
 			}
 
 			var rows [][]string
@@ -69,12 +53,12 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 			for _, entry := range entries {
 				rows = append(rows, []string{
 					fmt.Sprintf("%d", entry.ID),
+					entry.CreatedAt.Format(time.DateOnly),
 					entry.IssueKey,
 					entry.Issue.Project.Name,
 					entry.Issue.Summary,
 					model.FormatDuration(entry.Duration),
 					entry.Description,
-					util.FormatBool(entry.Sent),
 				})
 			}
 
@@ -82,6 +66,5 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&flagDate, "date", "d", "", "List time entries created on a specific date (YYYY-MM-DD)")
 	return cmd
 }
