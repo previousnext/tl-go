@@ -16,7 +16,7 @@ import (
 
 func TestNewCommand_PrintsEntriesInTable(t *testing.T) {
 	mock := &mocks.MockRepository{
-		FindAllTimeEntriesFunc: func() ([]*model.TimeEntry, error) {
+		FindAllTimeEntriesFunc: func(date time.Time) ([]*model.TimeEntry, error) {
 			project1 := &model.Project{Name: "Project1"}
 			project2 := &model.Project{Name: "Project2"}
 			return []*model.TimeEntry{

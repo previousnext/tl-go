@@ -1,6 +1,8 @@
 package mocks
 
 import (
+	"time"
+
 	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/model"
 )
@@ -9,7 +11,7 @@ import (
 type MockRepository struct {
 	db.TimeEntriesInterface
 	Entries                   []*model.TimeEntry
-	FindAllTimeEntriesFunc    func() ([]*model.TimeEntry, error)
+	FindAllTimeEntriesFunc    func(date time.Time) ([]*model.TimeEntry, error)
 	FindUnsentTimeEntriesFunc func() ([]*model.TimeEntry, error)
 	FindTimeEntryFunc         func(id uint) (*model.TimeEntry, error)
 	UpdateTimeEntryFunc       func(entry *model.TimeEntry) error
@@ -32,9 +34,9 @@ func (m *MockRepository) FindTimeEntry(id uint) (*model.TimeEntry, error) {
 	}
 	return nil, nil
 }
-func (m *MockRepository) FindAllTimeEntries() ([]*model.TimeEntry, error) {
+func (m *MockRepository) FindAllTimeEntries(date time.Time) ([]*model.TimeEntry, error) {
 	if m.FindAllTimeEntriesFunc != nil {
-		return m.FindAllTimeEntriesFunc()
+		return m.FindAllTimeEntriesFunc(time.Now())
 	}
 	return m.Entries, nil
 }
