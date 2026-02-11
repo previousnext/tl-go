@@ -22,7 +22,6 @@ import (
 	"github.com/previousnext/tl-go/cmd/setup"
 	"github.com/previousnext/tl-go/cmd/show"
 	"github.com/previousnext/tl-go/cmd/unsent"
-	"github.com/previousnext/tl-go/cmd/update"
 	"github.com/previousnext/tl-go/internal/api"
 	"github.com/previousnext/tl-go/internal/api/types"
 	"github.com/previousnext/tl-go/internal/db"
@@ -123,7 +122,6 @@ func init() {
 	rootCmd.AddCommand(edit.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(list.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(unsent.NewCommand(timeEntriesFunc))
-	rootCmd.AddCommand(update.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(delete.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(send.NewCommand(timeEntriesFunc, jiraClientFunc))
 	rootCmd.AddCommand(fetch.NewCommand(syncFunc))
