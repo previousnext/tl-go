@@ -16,6 +16,7 @@ import (
 	"github.com/previousnext/tl-go/cmd/delete"
 	"github.com/previousnext/tl-go/cmd/edit"
 	"github.com/previousnext/tl-go/cmd/fetch"
+	"github.com/previousnext/tl-go/cmd/issues"
 	"github.com/previousnext/tl-go/cmd/list"
 	"github.com/previousnext/tl-go/cmd/send"
 	"github.com/previousnext/tl-go/cmd/setup"
@@ -126,6 +127,7 @@ func init() {
 	rootCmd.AddCommand(delete.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(send.NewCommand(timeEntriesFunc, jiraClientFunc))
 	rootCmd.AddCommand(fetch.NewCommand(syncFunc))
+	rootCmd.AddCommand(issues.NewCommand(issueStorageFunc))
 }
 
 // initConfig reads in config file and ENV variables if set.

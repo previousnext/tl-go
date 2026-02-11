@@ -15,6 +15,7 @@ type IssueStorageInterface interface {
 	DeleteIssueByKey(key string) error
 	DeleteAllIssues() error
 	FindIssueByKey(key string) (*model.Issue, error)
+	FindRecentIssues(limit int) ([]*model.Issue, error)
 }
 
 func (r *Repository) FindIssueByKey(key string) (*model.Issue, error) {
@@ -60,4 +61,18 @@ func (r *Repository) DeleteAllIssues() error {
 		return fmt.Errorf("error deleting all issues: %w", err)
 	}
 	return nil
+}
+
+func (r *Repository) FindRecentIssues(limit int) ([]*model.Issue, error) {
+	db := r.openDB()
+	var issues []*model.Issue
+	if err := db.Preload("Project").
+		Joins("JOIN time_entries ON time_entries.issue_key = issues.key").
+		Group("issues.key").
+		Order("MAX(time_entries.created_at) DESC").
+		Limit(limit).
+		Find(&issues).Error; err != nil {
+		return nil, err
+	}
+	return issues, nil
 }
