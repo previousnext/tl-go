@@ -50,7 +50,7 @@ func TestJiraClient_AddWorkLog(t *testing.T) {
 	assert.Contains(t, capturedRequest.URL.Path, "/rest/api/3/issue/PROJ-123/worklog")
 	assert.Equal(t, "application/json", capturedRequest.Header.Get("Content-Type"))
 	assert.Contains(t, string(capturedBody), "Worked on bug fix")
-	assert.Contains(t, string(capturedBody), "2024-06-01T10:00:00Z")
+	assert.Contains(t, string(capturedBody), "2024-06-01T10:00:00.000+0000")
 	assert.Contains(t, string(capturedBody), "7200")
 }
 
@@ -68,6 +68,6 @@ func TestGenerateWorklogPayload(t *testing.T) {
 	assert.NotEmpty(t, payload)
 	assert.Contains(t, payload, worklog.IssueKey)
 	assert.Contains(t, payload, worklog.Comment)
-	assert.Contains(t, payload, "2024-06-01T10:00:00Z")
+	assert.Contains(t, payload, "2024-06-01T10:00:00.000+0000")
 	assert.Contains(t, payload, "7200") // 2 hours in seconds
 }
