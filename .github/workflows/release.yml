@@ -23,5 +23,3 @@ jobs:
       - name: ☁️ Release
         run: |
           mise release
-        env:
-          GITHUB_TOKEN: ${{ secrets.PNX_BOT_GITHUB_TOKEN }}
