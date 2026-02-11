@@ -11,7 +11,7 @@ import (
 
 func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "delete <time_entry_id>",
+		Use:                   "delete <id>",
 		Args:                  cobra.ExactArgs(1),
 		DisableFlagsInUseLine: true,
 		Short:                 "Delete a time entry",

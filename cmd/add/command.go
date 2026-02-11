@@ -20,7 +20,7 @@ var (
 
 func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "add <issue_key> <duration> [description]",
+		Use:                   "add <key> <duration> [description]",
 		Args:                  cobra.MinimumNArgs(2),
 		DisableFlagsInUseLine: true,
 		Short:                 "Add a time entry",
