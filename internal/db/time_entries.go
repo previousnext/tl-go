@@ -46,7 +46,7 @@ func (r *Repository) FindAllTimeEntries(date time.Time) ([]*model.TimeEntry, err
 func (r *Repository) FindUnsentTimeEntries() ([]*model.TimeEntry, error) {
 	db := r.openDB()
 	var entries []*model.TimeEntry
-	if err := db.Where("sent = ?", false).Find(&entries).Error; err != nil {
+	if err := db.Preload("Issue.Project").Where("sent = ?", false).Find(&entries).Error; err != nil {
 		return nil, err
 	}
 	return entries, nil

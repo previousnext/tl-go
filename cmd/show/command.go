@@ -15,7 +15,7 @@ import (
 
 func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "show",
+		Use:                   "show <id>",
 		Args:                  cobra.ExactArgs(1),
 		DisableFlagsInUseLine: true,
 		Short:                 "Show details of a time entry",

@@ -1,4 +1,4 @@
-package unsent
+package review
 
 import (
 	"fmt"
@@ -12,16 +12,16 @@ import (
 )
 
 var (
-	cmdShort   = `List unsent time entries`
-	cmdLong    = `List unsent time entries in the database.`
+	cmdShort   = `Review unsent time entries`
+	cmdLong    = `Review unsent time entries in the database.`
 	cmdExample = `
-  # List all time entries
-  tl unsent`
+  # Review unsent time entries
+  tl review`
 )
 
 func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "unsent",
+		Use:                   "review",
 		Args:                  cobra.NoArgs,
 		DisableFlagsInUseLine: true,
 		Short:                 cmdShort,
