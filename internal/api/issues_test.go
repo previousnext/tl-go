@@ -1,11 +1,58 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
+	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/previousnext/tl-go/internal/api/types"
 )
+
+func TestFetchIssue(t *testing.T) {
+	jsonResponse := `{
+  "id": "10001",
+  "key": "PROJ-123",
+  "fields": {
+    "summary": "Fix login bug",
+    "project": {
+      "id": "10050",
+      "key": "PROJ",
+      "name": "Project Name",
+      "projectCategory": {"description": "Category desc"}
+    }
+  }
+}`
+
+	rt := RoundTripFunc(func(req *http.Request) *http.Response {
+		return &http.Response{
+			StatusCode: 200,
+			Body:       io.NopCloser(bytes.NewBufferString(jsonResponse)),
+			Header:     make(http.Header),
+		}
+	})
+
+	httpClient := &http.Client{Transport: rt}
+	jiraClient := NewJiraClient(httpClient, types.JiraClientParams{
+		BaseURL:  "https://example.atlassian.net",
+		Username: "user",
+		APIToken: "token",
+	})
+
+	issue, err := jiraClient.FetchIssue("PROJ-123")
+	assert.NoError(t, err)
+	assert.Equal(t, "10001", issue.ID)
+	assert.Equal(t, "PROJ-123", issue.Key)
+	assert.Equal(t, "Fix login bug", issue.Fields.Summary)
+	assert.Equal(t, "10050", issue.Fields.Project.ID)
+	assert.Equal(t, "PROJ", issue.Fields.Project.Key)
+	assert.Equal(t, "Project Name", issue.Fields.Project.Name)
+	assert.Equal(t, "Category desc", issue.Fields.Project.ProjectCategory.Description)
+}
 
 func TestGenerateBulkFetchIssuesBody(t *testing.T) {
 	issueKeys := []string{"PROJ-1", "PROJ-2"}
