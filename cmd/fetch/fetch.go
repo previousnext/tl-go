@@ -17,6 +17,7 @@ func NewCommand(s func() service.SyncInterface) *cobra.Command {
 		Long:                  "Fetch issue details from the Jira API and store them in the local database.",
 		Example: `  # Fetch issues from Jira
   tl fetch PNX-123 PNX-456`,
+		Hidden: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := s().SyncIssues(args)
 			if err != nil {
