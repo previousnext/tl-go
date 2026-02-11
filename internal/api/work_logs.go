@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"text/template"
-	"time"
 
 	"github.com/previousnext/tl-go/internal/api/types"
 )
@@ -54,7 +53,7 @@ func generateWorklogPayload(worklog types.WorklogRecord) (*bytes.Buffer, error) 
 
 	data := map[string]interface{}{
 		"comment":          worklog.Comment,
-		"started":          worklog.Started.Format(time.RFC3339),
+		"started":          worklog.Started.Format(DateFormat),
 		"timeSpentSeconds": uint(worklog.Duration.Seconds()),
 	}
 

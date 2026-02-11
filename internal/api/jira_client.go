@@ -10,6 +10,8 @@ import (
 	"github.com/previousnext/tl-go/internal/api/types"
 )
 
+const DateFormat = "2006-01-02T15:04:05.000-0700"
+
 // JiraClientInterface defines the methods for interacting with Jira API
 // See https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/
 type JiraClientInterface interface {
