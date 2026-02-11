@@ -10,7 +10,7 @@ import (
 )
 
 // PrintTable a table to the console.
-func PrintTable(w io.Writer, headers []string, rows [][]string) error {
+func PrintTable(w io.Writer, headers []string, rows [][]string, footer []string) error {
 	var b bytes.Buffer
 
 	t := table.New(&b)
@@ -33,6 +33,8 @@ func PrintTable(w io.Writer, headers []string, rows [][]string) error {
 	for _, row := range rows {
 		t.AddRow(row...)
 	}
+
+	t.SetFooters(footer...)
 
 	t.Render()
 

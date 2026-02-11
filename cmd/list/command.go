@@ -66,6 +66,8 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 
 			var rows [][]string
 
+			totalDuration := time.Duration(0)
+
 			for _, entry := range entries {
 				rows = append(rows, []string{
 					fmt.Sprintf("%d", entry.ID),
@@ -76,9 +78,20 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 					entry.Description,
 					util.FormatBool(entry.Sent),
 				})
+				totalDuration += entry.Duration
 			}
 
-			return util.PrintTable(cmd.OutOrStdout(), header, rows)
+			footer := []string{
+				"",
+				"",
+				"",
+				"Total",
+				model.FormatDuration(totalDuration),
+				"",
+				"",
+			}
+
+			return util.PrintTable(cmd.OutOrStdout(), header, rows, footer)
 		},
 	}
 
