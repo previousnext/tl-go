@@ -16,7 +16,7 @@ var (
 	cmdLong    = `Edit a time entry`
 	cmdExample = `
   # Edit time entry with ID 1 to have a duration of 3 hours and a new description
-  tl edit 1 --duration 3h --description "Updated description"`
+  tl edit 1 --duration 3h --description "Updated description" --date 2024-01-02`
 )
 
 func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
