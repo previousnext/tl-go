@@ -14,6 +14,7 @@ import (
 
 	"github.com/previousnext/tl-go/cmd/add"
 	"github.com/previousnext/tl-go/cmd/delete"
+	"github.com/previousnext/tl-go/cmd/edit"
 	"github.com/previousnext/tl-go/cmd/fetch"
 	"github.com/previousnext/tl-go/cmd/list"
 	"github.com/previousnext/tl-go/cmd/send"
@@ -117,6 +118,7 @@ func init() {
 	rootCmd.AddCommand(setup.NewCommand(repositoryFunc))
 	rootCmd.AddCommand(add.NewCommand(timeEntriesFunc, syncFunc))
 	rootCmd.AddCommand(show.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(edit.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(list.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(update.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(delete.NewCommand(timeEntriesFunc))
