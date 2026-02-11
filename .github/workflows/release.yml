@@ -3,8 +3,6 @@ name: 🚀 Release
 on:
   push:
     tags: [ '*' ]
-  pull_request:
-    branches: [ "release-token" ]
 
 permissions:
   contents: write
