@@ -35,7 +35,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 			dateOutput := "today"
 			if flagDate != "" {
 				var err error
-				d, err = time.ParseInLocation("2006-01-02", flagDate, time.Local)
+				d, err = time.ParseInLocation(time.DateOnly, flagDate, time.Local)
 				if err != nil {
 					return fmt.Errorf("invalid d format: %s. Expected YYYY-MM-DD", flagDate)
 				}
@@ -56,10 +56,10 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 
 			header := []string{
 				"ID",
-				"Key",
+				"Issue",
 				"Project",
 				"Summary",
-				"Duration",
+				"Time",
 				"Description",
 				"Sent",
 			}
