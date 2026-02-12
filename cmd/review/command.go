@@ -40,11 +40,11 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 			}
 			header := []string{
 				"ID",
-				"Created",
-				"Key",
+				"Date",
+				"Issue",
 				"Summary",
 				"Project",
-				"Duration",
+				"Time",
 				"Description",
 			}
 

@@ -16,11 +16,12 @@ var (
 	cmdExample = `
   # Add 2 hours to a project a project with issue ID PNX-123
   tl add PNX-123 2h "Worked on feature X"`
+	date time.Time
 )
 
 func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "add <key> <duration> [description]",
+		Use:                   "add <key> <time> [description] [flags]",
 		Args:                  cobra.MinimumNArgs(2),
 		DisableFlagsInUseLine: true,
 		Short:                 "Add a time entry",
@@ -46,6 +47,7 @@ func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface
 			if len(args) > 2 {
 				entry.Description = args[2]
 			}
+			entry.CreatedAt = date
 
 			err = r().CreateTimeEntry(entry)
 			if err != nil {
@@ -57,6 +59,11 @@ func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface
 			return nil
 		},
 	}
+
+	timeFormats := []string{
+		time.DateOnly,
+	}
+	cmd.Flags().TimeVarP(&date, "date", "d", time.Now(), timeFormats, "Date for the entry.")
 
 	return cmd
 }
