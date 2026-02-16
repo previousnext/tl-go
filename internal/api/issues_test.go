@@ -23,7 +23,7 @@ func TestFetchIssue(t *testing.T) {
       "id": "10050",
       "key": "PROJ",
       "name": "Project Name",
-      "projectCategory": {"description": "Category desc"}
+      "projectCategory": {"name": "Non Billable", "id": "10000"}
     }
   }
 }`
@@ -51,7 +51,7 @@ func TestFetchIssue(t *testing.T) {
 	assert.Equal(t, "10050", issue.Fields.Project.ID)
 	assert.Equal(t, "PROJ", issue.Fields.Project.Key)
 	assert.Equal(t, "Project Name", issue.Fields.Project.Name)
-	assert.Equal(t, "Category desc", issue.Fields.Project.ProjectCategory.Description)
+	assert.Equal(t, "Non Billable", issue.Fields.Project.ProjectCategory.Name)
 }
 
 func TestGenerateBulkFetchIssuesBody(t *testing.T) {

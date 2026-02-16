@@ -41,7 +41,7 @@ func (r *Repository) FindAllIssues() ([]*model.Issue, error) {
 
 func (r *Repository) CreateIssue(issue *model.Issue) error {
 	db := r.openDB()
-	if err := db.Create(&issue).Error; err != nil {
+	if err := db.Save(&issue).Error; err != nil {
 		return err
 	}
 	return nil

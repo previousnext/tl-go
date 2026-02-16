@@ -26,7 +26,8 @@ type IssueFields struct {
 		Key             string `json:"key"`
 		Name            string `json:"name"`
 		ProjectCategory struct {
-			Description string `json:"description"`
+			ID   string `json:"id"`
+			Name string `json:"name"`
 		} `json:"projectCategory"`
 	} `json:"project"`
 }
