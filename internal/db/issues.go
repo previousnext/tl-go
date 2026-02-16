@@ -21,7 +21,7 @@ type IssueStorageInterface interface {
 func (r *Repository) FindIssueByKey(key string) (*model.Issue, error) {
 	db := r.openDB()
 	var issue model.Issue
-	if err := db.Preload("Project").Where("key = ?", key).First(&issue).Error; err != nil {
+	if err := db.Preload("Project").Preload("Project.Category").Where("key = ?", key).First(&issue).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -69,7 +69,7 @@ func (r *Repository) FindRecentIssues(limit int) ([]*model.Issue, error) {
 	if err := db.Preload("Project").
 		Joins("JOIN time_entries ON time_entries.issue_key = issues.key").
 		Group("issues.key").
-		Order("MAX(time_entries.created_at) DESC").
+		Order("MAX(time_entries.created_at) ASC").
 		Limit(limit).
 		Find(&issues).Error; err != nil {
 		return nil, err

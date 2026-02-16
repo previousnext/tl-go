@@ -64,7 +64,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 			headers := []string{
 				"ID",
 				"Issue",
-				"Project",
+				"Category",
 				"Summary",
 				"Time",
 				"Description",
@@ -85,7 +85,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				t.AddRow(
 					fmt.Sprintf("%d", entry.ID),
 					entry.IssueKey,
-					entry.Issue.Project.Name,
+					entry.Issue.Project.Category.Name,
 					entry.Issue.Summary,
 					model.FormatDuration(entry.Duration),
 					entry.Description,

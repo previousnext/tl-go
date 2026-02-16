@@ -37,7 +37,7 @@ func (r *Repository) FindAllTimeEntries(date time.Time) ([]*model.TimeEntry, err
 	start, end := getStartAndEndOfDay(date)
 	db := r.openDB()
 	var entries []*model.TimeEntry
-	if err := db.Preload("Issue.Project").Where("created_at BETWEEN ? AND ?", start, end).Find(&entries).Error; err != nil {
+	if err := db.Preload("Issue.Project.Category").Where("created_at BETWEEN ? AND ?", start, end).Find(&entries).Error; err != nil {
 		return nil, err
 	}
 	return entries, nil
