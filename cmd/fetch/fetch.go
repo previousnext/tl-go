@@ -13,7 +13,6 @@ var (
 	cmdLong    = "Fetch issue details from the Jira API and store them in the local database. This command is useful for ensuring that you have the latest issue information available locally."
 	cmdExample = `  # Fetch issues from Jira
   tl fetch PNX-123 PNX-456`
-	flagForce = false
 )
 
 func NewCommand(s func() service.SyncInterface) *cobra.Command {
@@ -34,8 +33,6 @@ func NewCommand(s func() service.SyncInterface) *cobra.Command {
 			return nil
 		},
 	}
-
-	cmd.Flags().BoolVarP(&flagForce, "force", "", flagForce, "Force fetch issues from Jira.")
 
 	return cmd
 }
