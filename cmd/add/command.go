@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/previousnext/tl-go/internal/alias"
 	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/model"
 	"github.com/previousnext/tl-go/internal/service"
@@ -32,7 +33,19 @@ func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface
 			if err != nil {
 				return fmt.Errorf("invalid duration: %s", args[1])
 			}
+
 			key := args[0]
+
+			// Check if this is an alias for an issue key and resolve it if necessary
+			aliasStorage := alias.NewAliasStorage()
+			aliases, err := aliasStorage.LoadAliases()
+			if err != nil {
+				return fmt.Errorf("error loading aliases: %w", err)
+			}
+
+			if resolvedKey, ok := aliases[key]; ok {
+				key = resolvedKey
+			}
 
 			issue, err := s().SyncIssue(key)
 			if err != nil {
