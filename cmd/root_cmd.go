@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/previousnext/tl-go/cmd/add"
+	"github.com/previousnext/tl-go/cmd/alias"
 	"github.com/previousnext/tl-go/cmd/delete"
 	"github.com/previousnext/tl-go/cmd/edit"
 	"github.com/previousnext/tl-go/cmd/fetch"
@@ -116,16 +117,17 @@ func init() {
 		return service.NewSync(issueStorageFunc, jiraClientFunc)
 	}
 
-	rootCmd.AddCommand(setup.NewCommand(repositoryFunc))
 	rootCmd.AddCommand(add.NewCommand(timeEntriesFunc, syncFunc))
-	rootCmd.AddCommand(show.NewCommand(timeEntriesFunc))
-	rootCmd.AddCommand(edit.NewCommand(timeEntriesFunc))
-	rootCmd.AddCommand(list.NewCommand(timeEntriesFunc))
-	rootCmd.AddCommand(review.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(alias.NewCommand())
 	rootCmd.AddCommand(delete.NewCommand(timeEntriesFunc))
-	rootCmd.AddCommand(send.NewCommand(timeEntriesFunc, jiraClientFunc))
+	rootCmd.AddCommand(edit.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(fetch.NewCommand(syncFunc))
 	rootCmd.AddCommand(issues.NewCommand(issueStorageFunc))
+	rootCmd.AddCommand(list.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(review.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(send.NewCommand(timeEntriesFunc, jiraClientFunc))
+	rootCmd.AddCommand(setup.NewCommand(repositoryFunc))
+	rootCmd.AddCommand(show.NewCommand(timeEntriesFunc))
 }
 
 // initConfig reads in config file and ENV variables if set.
