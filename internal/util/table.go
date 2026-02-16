@@ -9,7 +9,7 @@ import (
 	"github.com/jwalton/gchalk"
 )
 
-func PrepareTable(t *table.Table) {
+func ApplyTableFormatting(t *table.Table) {
 	t.SetHeaderStyle(table.StyleBold)
 	t.SetLineStyle(table.StyleBrightBlack)
 	t.SetDividers(table.UnicodeRoundedDividers)
@@ -24,8 +24,8 @@ func PrintTable(w io.Writer, headers []string, rows [][]string, footer []string)
 
 	t := table.New(&b)
 
-	PrepareTable(t)
-	
+	ApplyTableFormatting(t)
+
 	var formattedHeaders []string
 
 	for _, h := range headers {

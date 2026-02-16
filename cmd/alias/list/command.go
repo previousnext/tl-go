@@ -36,7 +36,7 @@ func NewCommand() *cobra.Command {
 			}
 			var b bytes.Buffer
 			t := table.New(&b)
-			util.PrepareTable(t)
+			util.ApplyTableFormatting(t)
 
 			var formattedHeaders []string
 			for _, h := range headers {
