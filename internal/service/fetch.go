@@ -100,20 +100,24 @@ func (f *FetchService) doCreateIssue(issueResp api.IssueResponse) (*model.Issue,
 	if err != nil {
 		return nil, fmt.Errorf("error converting issue ID to integer: %w", err)
 	}
+
 	projectID, err := strconv.ParseUint(issueResp.Fields.Project.ID, 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("error converting project ID to uint: %w", err)
 	}
+
 	categoryID, err := strconv.ParseUint(issueResp.Fields.Project.ProjectCategory.ID, 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("error converting category ID to uint: %w", err)
 	}
+
 	project := model.Project{
 		Model: gorm.Model{
 			ID: uint(projectID),
 		},
-		Key:  issueResp.Fields.Project.Key,
-		Name: issueResp.Fields.Project.Name,
+		Key:        issueResp.Fields.Project.Key,
+		Name:       issueResp.Fields.Project.Name,
+		CategoryID: uint(categoryID),
 		Category: model.Category{
 			Model: gorm.Model{
 				ID: uint(categoryID),
@@ -121,6 +125,7 @@ func (f *FetchService) doCreateIssue(issueResp api.IssueResponse) (*model.Issue,
 			Name: issueResp.Fields.Project.ProjectCategory.Name,
 		},
 	}
+
 	issue := &model.Issue{
 		Model: gorm.Model{
 			ID: uint(issueID),
@@ -133,5 +138,6 @@ func (f *FetchService) doCreateIssue(issueResp api.IssueResponse) (*model.Issue,
 	if err := f.issuesStorage().CreateIssue(issue); err != nil {
 		return issue, fmt.Errorf("error saving issue to database: %w", err)
 	}
+
 	return issue, nil
 }
