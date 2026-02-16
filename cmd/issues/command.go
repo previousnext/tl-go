@@ -34,6 +34,7 @@ func NewCommand(r func() db.IssueStorageInterface) *cobra.Command {
 				"Key",
 				"Summary",
 				"Project",
+				"Category",
 			}
 			rows := make([][]string, len(issues))
 			for i, issue := range issues {
@@ -41,11 +42,12 @@ func NewCommand(r func() db.IssueStorageInterface) *cobra.Command {
 					issue.Key,
 					issue.Summary,
 					issue.Project.Name,
+					issue.Project.Category.Name,
 				}
 			}
 
 			var footer []string
-			
+
 			return util.PrintTable(cmd.OutOrStdout(), headers, rows, footer)
 		},
 	}

@@ -19,6 +19,7 @@ import (
 	"github.com/previousnext/tl-go/cmd/fetch"
 	"github.com/previousnext/tl-go/cmd/issues"
 	"github.com/previousnext/tl-go/cmd/list"
+	"github.com/previousnext/tl-go/cmd/migrate"
 	"github.com/previousnext/tl-go/cmd/review"
 	"github.com/previousnext/tl-go/cmd/send"
 	"github.com/previousnext/tl-go/cmd/setup"
@@ -124,6 +125,7 @@ func init() {
 	rootCmd.AddCommand(fetch.NewCommand(syncFunc))
 	rootCmd.AddCommand(issues.NewCommand(issueStorageFunc))
 	rootCmd.AddCommand(list.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(migrate.NewCommand(repositoryFunc))
 	rootCmd.AddCommand(review.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(send.NewCommand(timeEntriesFunc, jiraClientFunc))
 	rootCmd.AddCommand(setup.NewCommand(repositoryFunc))

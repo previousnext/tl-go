@@ -27,7 +27,7 @@ func (r *Repository) CreateTimeEntry(entry *model.TimeEntry) error {
 func (r *Repository) FindTimeEntry(id uint) (*model.TimeEntry, error) {
 	db := r.openDB()
 	var entry model.TimeEntry
-	if err := db.Preload("Issue.Project").First(&entry, id).Error; err != nil {
+	if err := db.Preload("Issue.Project.Category").First(&entry, id).Error; err != nil {
 		return nil, err
 	}
 	return &entry, nil
@@ -37,7 +37,7 @@ func (r *Repository) FindAllTimeEntries(date time.Time) ([]*model.TimeEntry, err
 	start, end := getStartAndEndOfDay(date)
 	db := r.openDB()
 	var entries []*model.TimeEntry
-	if err := db.Preload("Issue.Project").Where("created_at BETWEEN ? AND ?", start, end).Find(&entries).Error; err != nil {
+	if err := db.Preload("Issue.Project.Category").Where("created_at BETWEEN ? AND ?", start, end).Find(&entries).Error; err != nil {
 		return nil, err
 	}
 	return entries, nil
@@ -46,7 +46,7 @@ func (r *Repository) FindAllTimeEntries(date time.Time) ([]*model.TimeEntry, err
 func (r *Repository) FindUnsentTimeEntries() ([]*model.TimeEntry, error) {
 	db := r.openDB()
 	var entries []*model.TimeEntry
-	if err := db.Preload("Issue.Project").Where("sent = ?", false).Find(&entries).Error; err != nil {
+	if err := db.Preload("Issue.Project.Category").Where("sent = ?", false).Find(&entries).Error; err != nil {
 		return nil, err
 	}
 	return entries, nil
