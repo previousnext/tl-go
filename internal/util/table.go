@@ -9,18 +9,22 @@ import (
 	"github.com/jwalton/gchalk"
 )
 
-// PrintTable a table to the console.
-func PrintTable(w io.Writer, headers []string, rows [][]string, footer []string) error {
-	var b bytes.Buffer
-
-	t := table.New(&b)
-
+func ApplyTableFormatting(t *table.Table) {
 	t.SetHeaderStyle(table.StyleBold)
 	t.SetLineStyle(table.StyleBrightBlack)
 	t.SetDividers(table.UnicodeRoundedDividers)
 
 	t.SetAvailableWidth(80)
 	t.SetColumnMaxWidth(80)
+}
+
+// PrintTable a table to the console.
+func PrintTable(w io.Writer, headers []string, rows [][]string, footer []string) error {
+	var b bytes.Buffer
+
+	t := table.New(&b)
+
+	ApplyTableFormatting(t)
 
 	var formattedHeaders []string
 
