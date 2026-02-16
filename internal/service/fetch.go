@@ -111,14 +111,15 @@ func (f *FetchService) doCreateIssue(issueResp api.IssueResponse) (*model.Issue,
 		return nil, fmt.Errorf("error converting category ID to uint: %w", err)
 	}
 
+	catID := uint(categoryID)
 	project := model.Project{
 		Model: gorm.Model{
 			ID: uint(projectID),
 		},
 		Key:        issueResp.Fields.Project.Key,
 		Name:       issueResp.Fields.Project.Name,
-		CategoryID: uint(categoryID),
-		Category: model.Category{
+		CategoryID: &catID,
+		Category: &model.Category{
 			Model: gorm.Model{
 				ID: uint(categoryID),
 			},

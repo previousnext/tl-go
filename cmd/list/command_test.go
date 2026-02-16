@@ -17,15 +17,17 @@ import (
 func TestNewCommand_PrintsEntriesInTable(t *testing.T) {
 	mock := &mocks.MockRepository{
 		FindAllTimeEntriesFunc: func(date time.Time) ([]*model.TimeEntry, error) {
-			project1 := &model.Project{Name: "Project1"}
-			project2 := &model.Project{Name: "Project2"}
+			category1 := &model.Category{Model: gorm.Model{ID: 1}, Name: "Category1"}
+			category2 := &model.Category{Model: gorm.Model{ID: 2}, Name: "Category2"}
+			project1 := model.Project{Name: "Project1", Category: category1}
+			project2 := model.Project{Name: "Project2", Category: category2}
 			return []*model.TimeEntry{
 				{
 					Model:    gorm.Model{ID: 1},
 					IssueKey: "PNX-1",
 					Issue: &model.Issue{
 						Summary: "issue1",
-						Project: *project1,
+						Project: project1,
 					},
 					Duration:    2 * time.Hour,
 					Description: "Worked on X",
@@ -35,7 +37,7 @@ func TestNewCommand_PrintsEntriesInTable(t *testing.T) {
 					IssueKey: "PNX-2",
 					Issue: &model.Issue{
 						Summary: "issue2",
-						Project: *project2,
+						Project: project2,
 					},
 					Duration:    30 * time.Minute,
 					Description: "Reviewed Y",
