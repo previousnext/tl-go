@@ -18,6 +18,10 @@ func ApplyTableFormatting(t *table.Table) {
 	t.SetColumnMaxWidth(80)
 }
 
+func ApplyHeaderFormatting(header string) string {
+	return gchalk.WithHex(HexOrange).Bold(header)
+}
+
 // PrintTable a table to the console.
 func PrintTable(w io.Writer, headers []string, rows [][]string, footer []string) error {
 	var b bytes.Buffer
@@ -29,7 +33,7 @@ func PrintTable(w io.Writer, headers []string, rows [][]string, footer []string)
 	var formattedHeaders []string
 
 	for _, h := range headers {
-		formattedHeaders = append(formattedHeaders, gchalk.WithHex(HexOrange).Bold(h))
+		formattedHeaders = append(formattedHeaders, ApplyHeaderFormatting(h))
 	}
 
 	t.SetHeaders(formattedHeaders...)

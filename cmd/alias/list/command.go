@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/aquasecurity/table"
-	"github.com/jwalton/gchalk"
 	"github.com/spf13/cobra"
 
 	"github.com/previousnext/tl-go/internal/alias"
@@ -40,7 +39,7 @@ func NewCommand() *cobra.Command {
 
 			var formattedHeaders []string
 			for _, h := range headers {
-				formattedHeaders = append(formattedHeaders, gchalk.WithHex(util.HexOrange).Bold(h))
+				formattedHeaders = append(formattedHeaders, util.ApplyHeaderFormatting(h))
 			}
 			t.AddHeaders(formattedHeaders...)
 

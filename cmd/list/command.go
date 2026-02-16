@@ -1,9 +1,11 @@
 package list
 
 import (
+	"bytes"
 	"fmt"
 	"time"
 
+	"github.com/aquasecurity/table"
 	"github.com/spf13/cobra"
 
 	"github.com/previousnext/tl-go/internal/db"
@@ -54,7 +56,12 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 
 			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Found %d time entries for %s.\n", len(entries), dateOutput)
 
-			header := []string{
+			var b bytes.Buffer
+			t := table.New(&b)
+
+			util.ApplyTableFormatting(t)
+
+			headers := []string{
 				"ID",
 				"Issue",
 				"Project",
@@ -64,12 +71,18 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				"Sent",
 			}
 
-			var rows [][]string
+			var formattedHeaders []string
+			for _, h := range headers {
+				formattedHeaders = append(formattedHeaders, util.ApplyHeaderFormatting(h))
+			}
 
+			t.SetHeaders(formattedHeaders...)
+
+			// Keep track of the total duration for all entries to display in the footer.
 			totalDuration := time.Duration(0)
 
 			for _, entry := range entries {
-				rows = append(rows, []string{
+				t.AddRow(
 					fmt.Sprintf("%d", entry.ID),
 					entry.IssueKey,
 					entry.Issue.Project.Name,
@@ -77,21 +90,50 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 					model.FormatDuration(entry.Duration),
 					entry.Description,
 					util.FormatBool(entry.Sent),
-				})
+				)
 				totalDuration += entry.Duration
 			}
+
+			t.SetAlignment(
+				table.AlignLeft,
+				table.AlignLeft,
+				table.AlignLeft,
+				table.AlignLeft,
+				table.AlignRight,
+				table.AlignRight,
+				table.AlignLeft,
+				table.AlignLeft,
+			)
 
 			footer := []string{
 				"",
 				"",
 				"",
-				"Total",
+				util.ApplyHeaderFormatting("Total"),
 				model.FormatDuration(totalDuration),
 				"",
 				"",
 			}
 
-			return util.PrintTable(cmd.OutOrStdout(), header, rows, footer)
+			t.SetFooters(footer...)
+
+			t.SetFooterAlignment(
+				table.AlignLeft,
+				table.AlignLeft,
+				table.AlignLeft,
+				table.AlignRight,
+				table.AlignRight,
+				table.AlignLeft,
+				table.AlignLeft,
+			)
+
+			t.Render()
+
+			_, err = fmt.Fprintf(cmd.OutOrStdout(), "\n%s\n", b.String())
+			if err != nil {
+				return fmt.Errorf("failed to print table: %w", err)
+			}
+			return nil
 		},
 	}
 
