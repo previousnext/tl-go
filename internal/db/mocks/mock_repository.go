@@ -15,6 +15,7 @@ type MockRepository struct {
 	FindUnsentTimeEntriesFunc func() ([]*model.TimeEntry, error)
 	FindTimeEntryFunc         func(id uint) (*model.TimeEntry, error)
 	UpdateTimeEntryFunc       func(entry *model.TimeEntry) error
+	GetSummaryByCategoryFunc  func(start, end time.Time) ([]db.CategorySummary, error)
 }
 
 func (m *MockRepository) AutoMigrate() error {
@@ -56,6 +57,13 @@ func (m *MockRepository) DeleteTimeEntry(id uint) error {
 func (m *MockRepository) FindUnsentTimeEntries() ([]*model.TimeEntry, error) {
 	if m.FindUnsentTimeEntriesFunc != nil {
 		return m.FindUnsentTimeEntriesFunc()
+	}
+	return nil, nil
+}
+
+func (m *MockRepository) GetSummaryByCategory(start, end time.Time) ([]db.CategorySummary, error) {
+	if m.GetSummaryByCategoryFunc != nil {
+		return m.GetSummaryByCategoryFunc(start, end)
 	}
 	return nil, nil
 }

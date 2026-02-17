@@ -32,15 +32,18 @@ USAGE
 
 COMMANDS
 
-    add <key> <duration> [description]  Add a time entry
-    delete <id>                         Delete a time entry
-    edit <id> [--flags]                 Edit a time entry
-    issues [--flags]                    List recent issues
-    list [--flags]                      List all time entries
-    review                              Review unsent time entries
-    send                                Send time entries to Jira
-    setup [--flags]                     Setup tl database and configuration
-    show <id>                           Show details of a time entry
+    add <key> <time> [description] [--flags]  Add a time entry
+    alias [command]                           Add, list, and delete command aliases.
+    delete <id>                               Delete a time entry
+    edit <id> [--flags]                       Edit a time entry
+    issues [--flags]                          List recent issues
+    list [--flags]                            List all time entries
+    migrate                                   Migrate the database schema to the latest version.
+    review                                    Review unsent time entries
+    send                                      Send time entries to Jira
+    setup [--flags]                           Setup tl database and configuration
+    show <id>                                 Show details of a time entry
+    summary [--flags]                         Show a summary of time spent per project category
 ```
 
 ### Acknowledgements
