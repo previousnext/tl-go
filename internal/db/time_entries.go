@@ -14,6 +14,13 @@ type TimeEntriesInterface interface {
 	FindUniqueIssueKeys() ([]string, error)
 	UpdateTimeEntry(entry *model.TimeEntry) error
 	DeleteTimeEntry(id uint) error
+	GetSummaryByCategory(start time.Time, end time.Time) ([]CategorySummary, error)
+}
+
+type CategorySummary struct {
+	CategoryName string
+	Duration     time.Duration
+	Percentage   float64
 }
 
 func (r *Repository) CreateTimeEntry(entry *model.TimeEntry) error {
@@ -69,4 +76,41 @@ func (r *Repository) UpdateTimeEntry(entry *model.TimeEntry) error {
 func (r *Repository) DeleteTimeEntry(id uint) error {
 	db := r.openDB()
 	return db.Delete(&model.TimeEntry{}, id).Error
+}
+
+func (r *Repository) GetSummaryByCategory(start time.Time, end time.Time) ([]CategorySummary, error) {
+	db := r.openDB()
+	var summaries []struct {
+		CategoryName string
+		Duration     time.Duration
+	}
+	if err := db.Model(&model.TimeEntry{}).
+		Select("COALESCE(categories.name, 'None') as category_name, SUM(duration) as duration").
+		Joins("JOIN issues ON time_entries.issue_key = issues.key").
+		Joins("JOIN projects ON issues.project_id = projects.id").
+		Joins("LEFT JOIN categories ON projects.category_id = categories.id").
+		Where("time_entries.created_at BETWEEN ? AND ?", start, end).
+		Group("category_name").
+		Scan(&summaries).Error; err != nil {
+		return nil, err
+	}
+
+	var totalDuration time.Duration
+	for _, summary := range summaries {
+		totalDuration += summary.Duration
+	}
+
+	var results []CategorySummary
+	for _, summary := range summaries {
+		percent := 0.0
+		if totalDuration > 0 {
+			percent = float64(summary.Duration) / float64(totalDuration) * 100
+		}
+		results = append(results, CategorySummary{
+			CategoryName: summary.CategoryName,
+			Duration:     summary.Duration,
+			Percentage:   percent,
+		})
+	}
+	return results, nil
 }
