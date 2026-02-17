@@ -38,11 +38,15 @@ func NewCommand(r func() db.IssueStorageInterface) *cobra.Command {
 			}
 			rows := make([][]string, len(issues))
 			for i, issue := range issues {
+				categoryName := ""
+				if issue.Project.Category != nil {
+					categoryName = issue.Project.Category.Name
+				}
 				rows[i] = []string{
 					issue.Key,
 					issue.Summary,
 					issue.Project.Name,
-					issue.Project.Category.Name,
+					categoryName,
 				}
 			}
 

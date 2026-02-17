@@ -66,7 +66,7 @@ func (r *Repository) DeleteAllIssues() error {
 func (r *Repository) FindRecentIssues(limit int) ([]*model.Issue, error) {
 	db := r.openDB()
 	var issues []*model.Issue
-	if err := db.Preload("Project").
+	if err := db.Preload("Project.Category").
 		Joins("JOIN time_entries ON time_entries.issue_key = issues.key").
 		Group("issues.key").
 		Order("MAX(time_entries.created_at) ASC").

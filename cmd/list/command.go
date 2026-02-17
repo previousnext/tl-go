@@ -82,10 +82,14 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 			totalDuration := time.Duration(0)
 
 			for _, entry := range entries {
+				categoryName := ""
+				if entry.Issue.Project.Category != nil {
+					categoryName = entry.Issue.Project.Category.Name
+				}
 				t.AddRow(
 					fmt.Sprintf("%d", entry.ID),
 					entry.IssueKey,
-					entry.Issue.Project.Category.Name,
+					categoryName,
 					entry.Issue.Summary,
 					model.FormatDuration(entry.Duration),
 					entry.Description,
