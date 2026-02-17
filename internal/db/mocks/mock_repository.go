@@ -10,6 +10,7 @@ import (
 // MockRepository implements db.TimeEntriesInterface for testing.
 type MockRepository struct {
 	db.TimeEntriesInterface
+	db.IssueStorageInterface
 	Entries                   []*model.TimeEntry
 	FindAllTimeEntriesFunc    func(date time.Time) ([]*model.TimeEntry, error)
 	FindUnsentTimeEntriesFunc func() ([]*model.TimeEntry, error)
@@ -17,6 +18,9 @@ type MockRepository struct {
 	UpdateTimeEntryFunc       func(entry *model.TimeEntry) error
 	GetSummaryByCategoryFunc  func(start, end time.Time) ([]db.CategorySummary, error)
 }
+
+var _ db.IssueStorageInterface = (*MockRepository)(nil)
+var _ db.TimeEntriesInterface = (*MockRepository)(nil)
 
 func (m *MockRepository) AutoMigrate() error {
 	return nil
@@ -66,4 +70,23 @@ func (m *MockRepository) GetSummaryByCategory(start, end time.Time) ([]db.Catego
 		return m.GetSummaryByCategoryFunc(start, end)
 	}
 	return nil, nil
+}
+
+func (m *MockRepository) FindAllIssues() ([]*model.Issue, error) {
+	return []*model.Issue{}, nil
+}
+func (m *MockRepository) CreateIssue(issue *model.Issue) error {
+	return nil
+}
+func (m *MockRepository) DeleteIssueByKey(key string) error {
+	return nil
+}
+func (m *MockRepository) DeleteAllIssues() error {
+	return nil
+}
+func (m *MockRepository) FindIssueByKey(key string) (*model.Issue, error) {
+	return nil, nil
+}
+func (m *MockRepository) FindRecentIssues(limit int) ([]*model.Issue, error) {
+	return []*model.Issue{}, nil
 }
