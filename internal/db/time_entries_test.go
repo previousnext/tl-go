@@ -28,11 +28,9 @@ func cleanupTestRepo(_ *testing.T, repo *Repository) {
 }
 
 func TestGetSummaryByCategory(t *testing.T) {
-	// Setup: Create a test repository with in-memory database
 	repo := setupTestRepo(t)
 	defer cleanupTestRepo(t, repo)
 
-	// Create test data
 	category := &model.Category{
 		Name: "Billable",
 	}
@@ -55,7 +53,6 @@ func TestGetSummaryByCategory(t *testing.T) {
 	}
 	assert.NoError(t, db.Create(issue).Error)
 
-	// Create time entries within the date range
 	start := time.Now().Add(-24 * time.Hour)
 	end := time.Now().Add(24 * time.Hour)
 
@@ -79,10 +76,8 @@ func TestGetSummaryByCategory(t *testing.T) {
 	}
 	assert.NoError(t, db.Create(entry2).Error)
 
-	// Call the function
 	summaries, err := repo.GetSummaryByCategory(start, end)
 
-	// Assertions
 	assert.NoError(t, err)
 	assert.Len(t, summaries, 1)
 	assert.Equal(t, "Billable", summaries[0].CategoryName)
@@ -91,27 +86,22 @@ func TestGetSummaryByCategory(t *testing.T) {
 }
 
 func TestGetSummaryByCategory_NoResults(t *testing.T) {
-	// Setup: Create a test repository with in-memory database
 	repo := setupTestRepo(t)
 	defer cleanupTestRepo(t, repo)
 
-	// Call the function with no data
 	start := time.Now().Add(-24 * time.Hour)
 	end := time.Now().Add(24 * time.Hour)
 
 	summaries, err := repo.GetSummaryByCategory(start, end)
 
-	// Assertions
 	assert.NoError(t, err)
 	assert.Len(t, summaries, 0)
 }
 
 func TestGetSummaryByCategory_OutsideDateRange(t *testing.T) {
-	// Setup: Create a test repository with in-memory database
 	repo := setupTestRepo(t)
 	defer cleanupTestRepo(t, repo)
 
-	// Create test data
 	category := &model.Category{
 		Name: "Billable",
 	}
@@ -134,7 +124,6 @@ func TestGetSummaryByCategory_OutsideDateRange(t *testing.T) {
 	}
 	assert.NoError(t, db.Create(issue).Error)
 
-	// Create time entry outside the date range
 	entry := &model.TimeEntry{
 		Model: gorm.Model{
 			CreatedAt: time.Now().Add(-48 * time.Hour),
@@ -145,13 +134,11 @@ func TestGetSummaryByCategory_OutsideDateRange(t *testing.T) {
 	}
 	assert.NoError(t, db.Create(entry).Error)
 
-	// Call the function with a date range that excludes the entry
 	start := time.Now().Add(-24 * time.Hour)
 	end := time.Now()
 
 	summaries, err := repo.GetSummaryByCategory(start, end)
 
-	// Assertions
 	assert.NoError(t, err)
 	assert.Len(t, summaries, 0)
 }
