@@ -20,7 +20,7 @@ var (
 	date time.Time
 )
 
-func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface) *cobra.Command {
+func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface, i func() db.IssueStorageInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "add <key> <time> [description] [flags]",
 		Args:                  cobra.MinimumNArgs(2),
@@ -28,6 +28,30 @@ func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface
 		Short:                 "Add a time entry",
 		Long:                  cmdLong,
 		Example:               cmdExample,
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			// Suggest aliases and issue keys for the 'key' argument
+			if len(args) == 0 {
+				aliasStorage := alias.NewAliasStorage()
+				aliases, err := aliasStorage.LoadAliases()
+				completions := []string{}
+				if err == nil {
+					for k := range aliases {
+						completions = append(completions, k)
+					}
+				}
+
+				// Fetch issue keys from the database
+				issues, err := i().FindAllIssues()
+				if err == nil {
+					for _, issue := range issues {
+						completions = append(completions, issue.Key)
+					}
+				}
+
+				return completions, cobra.ShellCompDirectiveNoFileComp
+			}
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			dur, err := time.ParseDuration(args[1])
 			if err != nil {

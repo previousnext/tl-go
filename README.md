@@ -46,6 +46,14 @@ COMMANDS
     summary [--flags]                         Show a summary of time spent per project category
 ```
 
+### Adding bash completion
+
+To enable bash completion for `tl`, you can run the following command on Ubuntu and restart your terminal:
+
+```
+tl completion bash > ~/.local/share/bash-completion/completions/tl.bash
+```
+
 ### Acknowledgements
 
 This project was inspired by [larowlan/tl](https://github.com/larowlan/tl) which is written in PHP and does much more than this version.

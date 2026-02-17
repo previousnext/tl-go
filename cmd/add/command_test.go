@@ -16,6 +16,7 @@ func TestAdd(t *testing.T) {
 	cmd := NewCommand(
 		func() db.TimeEntriesInterface { return &dbmocks.MockRepository{} },
 		func() service.SyncInterface { return &servicemocks.MockSync{} },
+		func() db.IssueStorageInterface { return &dbmocks.MockRepository{} },
 	)
 
 	var buf bytes.Buffer
@@ -32,6 +33,7 @@ func TestAdd_InvalidDuration_ReturnsError(t *testing.T) {
 	cmd := NewCommand(
 		func() db.TimeEntriesInterface { return &dbmocks.MockRepository{} },
 		func() service.SyncInterface { return &servicemocks.MockSync{} },
+		func() db.IssueStorageInterface { return &dbmocks.MockRepository{} },
 	)
 
 	var buf bytes.Buffer
@@ -47,6 +49,7 @@ func TestAdd_NoDescription(t *testing.T) {
 	cmd := NewCommand(
 		func() db.TimeEntriesInterface { return &dbmocks.MockRepository{} },
 		func() service.SyncInterface { return &servicemocks.MockSync{} },
+		func() db.IssueStorageInterface { return &dbmocks.MockRepository{} },
 	)
 
 	var buf bytes.Buffer

@@ -119,7 +119,7 @@ func init() {
 		return service.NewSync(issueStorageFunc, jiraClientFunc)
 	}
 
-	rootCmd.AddCommand(add.NewCommand(timeEntriesFunc, syncFunc))
+	rootCmd.AddCommand(add.NewCommand(timeEntriesFunc, syncFunc, issueStorageFunc))
 	rootCmd.AddCommand(alias.NewCommand())
 	rootCmd.AddCommand(delete.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(edit.NewCommand(timeEntriesFunc))
