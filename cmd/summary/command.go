@@ -58,6 +58,11 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 			// Set end to end of day to include the entire end date
 			end = time.Date(end.Year(), end.Month(), end.Day(), 23, 59, 59, 999999999, end.Location())
 
+			// Validate start is before or equal to end
+			if start.After(end) {
+				return fmt.Errorf("start date (%s) must be before or equal to end date (%s)", start.Format("2006-01-02"), end.Format("2006-01-02"))
+			}
+
 			summaries, err := r().GetSummaryByCategory(start, end)
 			if err != nil {
 				return err
