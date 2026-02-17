@@ -1,7 +1,6 @@
 package db
 
 import (
-	"os"
 	"testing"
 	"time"
 
@@ -12,24 +11,18 @@ import (
 )
 
 func setupTestRepo(t *testing.T) *Repository {
-	tmpFile, err := os.CreateTemp("", "test_*.db")
-	assert.NoError(t, err)
-	assert.NoError(t, tmpFile.Close())
+	dir := t.TempDir()
+	dbPath := dir + "/test.db"
 
-	repo := NewRepository(tmpFile.Name())
-	err = repo.AutoMigrate()
+	repo := NewRepository(dbPath)
+	err := repo.AutoMigrate()
 	assert.NoError(t, err)
 
 	return repo
 }
 
-func cleanupTestRepo(_ *testing.T, repo *Repository) {
-	_ = os.Remove(repo.dbPath)
-}
-
 func TestGetSummaryByCategory(t *testing.T) {
 	repo := setupTestRepo(t)
-	defer cleanupTestRepo(t, repo)
 
 	category := &model.Category{
 		Name: "Billable",
@@ -87,7 +80,6 @@ func TestGetSummaryByCategory(t *testing.T) {
 
 func TestGetSummaryByCategory_NoResults(t *testing.T) {
 	repo := setupTestRepo(t)
-	defer cleanupTestRepo(t, repo)
 
 	start := time.Now().Add(-24 * time.Hour)
 	end := time.Now().Add(24 * time.Hour)
@@ -100,7 +92,6 @@ func TestGetSummaryByCategory_NoResults(t *testing.T) {
 
 func TestGetSummaryByCategory_OutsideDateRange(t *testing.T) {
 	repo := setupTestRepo(t)
-	defer cleanupTestRepo(t, repo)
 
 	category := &model.Category{
 		Name: "Billable",
