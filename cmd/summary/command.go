@@ -55,8 +55,8 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 					return err
 				}
 			}
-			// Set end to midnight
-			end = time.Date(end.Year(), end.Month(), end.Day(), 0, 0, 0, 0, end.Location())
+			// Set end to end of day to include the entire end date
+			end = time.Date(end.Year(), end.Month(), end.Day(), 23, 59, 59, 999999999, end.Location())
 
 			summaries, err := r().GetSummaryByCategory(start, end)
 			if err != nil {
