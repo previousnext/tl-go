@@ -25,6 +25,7 @@ import (
 	"github.com/previousnext/tl-go/cmd/setup"
 	"github.com/previousnext/tl-go/cmd/show"
 	"github.com/previousnext/tl-go/cmd/summary"
+	timercmd "github.com/previousnext/tl-go/cmd/timer"
 	"github.com/previousnext/tl-go/internal/api"
 	"github.com/previousnext/tl-go/internal/api/types"
 	"github.com/previousnext/tl-go/internal/db"
@@ -118,6 +119,7 @@ func init() {
 	syncFunc := func() service.SyncInterface {
 		return service.NewSync(issueStorageFunc, jiraClientFunc)
 	}
+	currentTimeStorageFunc := func() db.CurrentTimeEntryStorageInterface { return db.NewRepository(viper.GetString("db_file")) }
 
 	rootCmd.AddCommand(add.NewCommand(timeEntriesFunc, syncFunc, issueStorageFunc))
 	rootCmd.AddCommand(alias.NewCommand())
@@ -132,6 +134,7 @@ func init() {
 	rootCmd.AddCommand(setup.NewCommand(repositoryFunc))
 	rootCmd.AddCommand(summary.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(show.NewCommand(timeEntriesFunc))
+	rootCmd.AddCommand(timercmd.NewCommand(currentTimeStorageFunc, issueStorageFunc, syncFunc))
 }
 
 // initConfig reads in config file and ENV variables if set.
