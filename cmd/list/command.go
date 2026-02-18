@@ -90,7 +90,12 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 					fmt.Sprintf("%d", entry.ID),
 					entry.IssueKey,
 					categoryName,
-					entry.Issue.Summary,
+					func() string {
+						if entry.Issue != nil {
+							return entry.Issue.Summary
+						}
+						return ""
+					}(),
 					model.FormatDuration(entry.Duration),
 					entry.Description,
 					util.FormatBool(entry.Sent),
