@@ -2,6 +2,7 @@ package review
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -17,6 +18,7 @@ var (
 	cmdExample = `
   # Review unsent time entries
   tl review`
+	short bool
 )
 
 func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
@@ -38,6 +40,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				cmd.Println("No unsent time entries found.")
 				return nil
 			}
+
 			header := []string{
 				"ID",
 				"Date",
@@ -47,12 +50,15 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				"Time",
 				"Description",
 			}
+			if short {
+				header = slices.Delete(header, 3, 5)
+			}
 
 			var rows [][]string
 
 			totalDuration := time.Duration(0)
 			for _, entry := range entries {
-				rows = append(rows, []string{
+				row := []string{
 					fmt.Sprintf("%d", entry.ID),
 					entry.CreatedAt.Format(time.DateOnly),
 					entry.IssueKey,
@@ -60,9 +66,14 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 					entry.Issue.Project.Name,
 					model.FormatDuration(entry.Duration),
 					entry.Description,
-				})
+				}
+				if short {
+					row = slices.Delete(row, 3, 5)
+				}
+				rows = append(rows, row)
 				totalDuration += entry.Duration
 			}
+
 			footer := []string{
 				"",
 				"",
@@ -72,10 +83,15 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				model.FormatDuration(totalDuration),
 				"",
 			}
+			if short {
+				footer = slices.Delete(footer, 1, 3)
+			}
 
 			return util.PrintTable(cmd.OutOrStdout(), header, rows, footer)
 		},
 	}
+
+	cmd.Flags().BoolVar(&short, "short", false, "Display the short version of the review table.")
 
 	return cmd
 }
