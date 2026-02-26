@@ -17,6 +17,7 @@ var (
 	cmdExample = `
   # Review unsent time entries
   tl review`
+	flagOutput = "table"
 )
 
 func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
@@ -38,44 +39,58 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				cmd.Println("No unsent time entries found.")
 				return nil
 			}
+
 			header := []string{
 				"ID",
 				"Date",
 				"Issue",
-				"Summary",
-				"Project",
 				"Time",
 				"Description",
+			}
+			if flagOutput == "wide" {
+				header = append(header, "Summary", "Project")
 			}
 
 			var rows [][]string
 
 			totalDuration := time.Duration(0)
 			for _, entry := range entries {
-				rows = append(rows, []string{
+				row := []string{
 					fmt.Sprintf("%d", entry.ID),
 					entry.CreatedAt.Format(time.DateOnly),
 					entry.IssueKey,
-					entry.Issue.Summary,
-					entry.Issue.Project.Name,
 					model.FormatDuration(entry.Duration),
 					entry.Description,
-				})
+				}
+				if flagOutput == "wide" {
+					row = append(row, entry.Issue.Summary, entry.Issue.Project.Name)
+				}
+				rows = append(rows, row)
 				totalDuration += entry.Duration
 			}
+
 			footer := []string{
 				"",
 				"",
-				"",
-				"",
-				"Total",
-				model.FormatDuration(totalDuration),
+				util.ApplyHeaderFormatting("Total"),
+				util.ApplyHeaderFormatting(model.FormatDuration(totalDuration)),
 				"",
 			}
+			if flagOutput == "wide" {
+				footer = append(footer, "", "")
+			}
 
-			return util.PrintTable(cmd.OutOrStdout(), header, rows, footer)
+			err = util.PrintTable(cmd.OutOrStdout(), header, rows, footer)
+			if err != nil {
+				return fmt.Errorf("error printing table: %w", err)
+			}
+			util.PrintIssueLinks(cmd.OutOrStdout(), entries)
+			
+			return nil
 		},
 	}
+
+	cmd.Flags().StringVarP(&flagOutput, "output", "o", flagOutput, "Output format (table, wide). Defaults to table.")
 
 	return cmd
 }

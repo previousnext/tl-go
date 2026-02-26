@@ -17,6 +17,7 @@ var (
 	cmdShort   = `List all time entries`
 	cmdLong    = `List all time entries in the database.`
 	flagDate   = ""
+	flagOutput = "table"
 	cmdExample = `
   # List all time entries
   tl list`
@@ -59,16 +60,18 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 			var b bytes.Buffer
 			t := table.New(&b)
 
-			util.ApplyTableFormatting(t)
+			util.ApplyDefaultTableFormatting(t)
 
 			headers := []string{
 				"ID",
 				"Issue",
-				"Category",
-				"Summary",
+				"Cat",
 				"Time",
 				"Description",
 				"Sent",
+			}
+			if flagOutput == "wide" {
+				headers = append(headers, "Project", "Summary")
 			}
 
 			var formattedHeaders []string
@@ -86,37 +89,26 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				if entry.Issue.Project.Category != nil {
 					categoryName = entry.Issue.Project.Category.Name
 				}
-				t.AddRow(
+				row := []string{
 					fmt.Sprintf("%d", entry.ID),
-					entry.IssueKey,
-					categoryName,
-					entry.Issue.Summary,
+					entry.IssueKey, // Only show plain issue key in table
+					util.AbbreviateProjectCategory(categoryName),
 					model.FormatDuration(entry.Duration),
 					entry.Description,
 					util.FormatBool(entry.Sent),
-				)
+				}
+				if flagOutput == "wide" {
+					row = append(row, entry.Issue.Project.Name, entry.Issue.Summary)
+				}
+				t.AddRow(row...)
 				totalDuration += entry.Duration
 			}
-
-			t.SetAlignment(
-				table.AlignLeft,
-				table.AlignLeft,
-				table.AlignLeft,
-				table.AlignLeft,
-				table.AlignRight,
-				table.AlignRight,
-				table.AlignLeft,
-				table.AlignLeft,
-			)
 
 			footer := []string{
 				"",
 				"",
-				"",
 				util.ApplyHeaderFormatting("Total"),
-				model.FormatDuration(totalDuration),
-				"",
-				"",
+				util.ApplyHeaderFormatting(model.FormatDuration(totalDuration)),
 			}
 
 			t.SetFooters(footer...)
@@ -137,10 +129,13 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed to print table: %w", err)
 			}
+			util.PrintIssueLinks(cmd.OutOrStdout(), entries)
 			return nil
 		},
 	}
 
 	cmd.Flags().StringVarP(&flagDate, "date", "d", "", "List time entries created on a specific date (YYYY-MM-DD)")
+	cmd.Flags().StringVarP(&flagOutput, "output", "o", flagOutput, "Output format (table,wide).")
+
 	return cmd
 }

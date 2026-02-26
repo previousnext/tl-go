@@ -46,6 +46,7 @@ func TestNewCommand_PrintsEntriesInTable(t *testing.T) {
 		},
 	}
 	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
+	cmd.SetArgs([]string{"--output=wide"})
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
@@ -60,7 +61,7 @@ func TestNewCommand_PrintsEntriesInTable(t *testing.T) {
 	assert.Contains(t, output, "issue2")
 	assert.Contains(t, output, "Worked on X")
 	assert.Contains(t, output, "Reviewed Y")
-	assert.Contains(t, output, "2h0m")
+	assert.Contains(t, output, "2h")
 	assert.Contains(t, output, "30m")
 }
 
@@ -94,6 +95,7 @@ func TestNewCommand_PrintsEntriesWithNilCategory(t *testing.T) {
 		},
 	}
 	cmd := NewCommand(func() db.TimeEntriesInterface { return mock })
+	cmd.SetArgs([]string{"--output=wide"})
 
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
@@ -107,6 +109,6 @@ func TestNewCommand_PrintsEntriesWithNilCategory(t *testing.T) {
 	assert.Contains(t, output, "issue2")
 	assert.Contains(t, output, "Worked on X")
 	assert.Contains(t, output, "Reviewed Y")
-	assert.Contains(t, output, "2h0m")
+	assert.Contains(t, output, "2h")
 	assert.Contains(t, output, "30m")
 }

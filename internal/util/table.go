@@ -9,13 +9,11 @@ import (
 	"github.com/jwalton/gchalk"
 )
 
-func ApplyTableFormatting(t *table.Table) {
+func ApplyDefaultTableFormatting(t *table.Table) {
 	t.SetHeaderStyle(table.StyleBold)
 	t.SetLineStyle(table.StyleBrightBlack)
 	t.SetDividers(table.UnicodeRoundedDividers)
-
-	t.SetAvailableWidth(80)
-	t.SetColumnMaxWidth(80)
+	t.SetColumnMaxWidth(26)
 }
 
 func ApplyHeaderFormatting(header string) string {
@@ -28,7 +26,7 @@ func PrintTable(w io.Writer, headers []string, rows [][]string, footer []string)
 
 	t := table.New(&b)
 
-	ApplyTableFormatting(t)
+	ApplyDefaultTableFormatting(t)
 
 	var formattedHeaders []string
 
