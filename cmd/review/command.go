@@ -2,7 +2,6 @@ package review
 
 import (
 	"fmt"
-	"slices"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -18,7 +17,7 @@ var (
 	cmdExample = `
   # Review unsent time entries
   tl review`
-	short bool
+	flagOutput = "table"
 )
 
 func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
@@ -45,13 +44,11 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				"ID",
 				"Date",
 				"Issue",
-				"Summary",
-				"Project",
 				"Time",
 				"Description",
 			}
-			if short {
-				header = slices.Delete(header, 3, 5)
+			if flagOutput == "wide" {
+				header = append(header, "Summary", "Project")
 			}
 
 			var rows [][]string
@@ -62,13 +59,11 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 					fmt.Sprintf("%d", entry.ID),
 					entry.CreatedAt.Format(time.DateOnly),
 					entry.IssueKey,
-					entry.Issue.Summary,
-					entry.Issue.Project.Name,
 					model.FormatDuration(entry.Duration),
 					entry.Description,
 				}
-				if short {
-					row = slices.Delete(row, 3, 5)
+				if flagOutput == "wide" {
+					row = append(row, entry.Issue.Summary, entry.Issue.Project.Name)
 				}
 				rows = append(rows, row)
 				totalDuration += entry.Duration
@@ -77,21 +72,19 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 			footer := []string{
 				"",
 				"",
-				"",
-				"",
-				"Total",
-				model.FormatDuration(totalDuration),
+				util.ApplyHeaderFormatting("Total"),
+				util.ApplyHeaderFormatting(model.FormatDuration(totalDuration)),
 				"",
 			}
-			if short {
-				footer = slices.Delete(footer, 1, 3)
+			if flagOutput == "wide" {
+				footer = append(footer, "", "")
 			}
 
 			return util.PrintTable(cmd.OutOrStdout(), header, rows, footer)
 		},
 	}
 
-	cmd.Flags().BoolVar(&short, "short", false, "Display the short version of the review table.")
+	cmd.Flags().StringVarP(&flagOutput, "output", "o", flagOutput, "Output format (table, wide). Defaults to table.")
 
 	return cmd
 }

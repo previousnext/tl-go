@@ -14,8 +14,7 @@ func ApplyTableFormatting(t *table.Table) {
 	t.SetLineStyle(table.StyleBrightBlack)
 	t.SetDividers(table.UnicodeRoundedDividers)
 
-	t.SetAvailableWidth(80)
-	t.SetColumnMaxWidth(80)
+	t.SetColumnMaxWidth(26)
 }
 
 func ApplyHeaderFormatting(header string) string {
