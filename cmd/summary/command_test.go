@@ -5,9 +5,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/db/mocks"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSummaryCommand_PrintsTable(t *testing.T) {
@@ -35,14 +36,14 @@ func TestSummaryCommand_PrintsTable(t *testing.T) {
 	assert.Contains(t, output, "Billable")
 	assert.Contains(t, output, "Non Billable")
 	// Check for formatted durations
-	assert.Contains(t, output, "2h0m")
-	assert.Contains(t, output, "1h0m")
+	assert.Contains(t, output, "2h")
+	assert.Contains(t, output, "1h")
 	// Check for percentages
 	assert.Contains(t, output, "66.7%")
 	assert.Contains(t, output, "33.3%")
 	// Check for total
 	assert.Contains(t, output, "Total")
-	assert.Contains(t, output, "3h0m")
+	assert.Contains(t, output, "3h")
 	// Check for summary line
 	assert.Contains(t, output, "Summary of time spent per category")
 }

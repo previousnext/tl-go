@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -18,7 +19,23 @@ type TimeEntry struct {
 }
 
 func FormatDuration(dur time.Duration) string {
-	return strings.TrimSuffix(dur.String(), "0s")
+	h := int(dur.Hours())
+	m := int(dur.Minutes()) % 60
+	s := int(dur.Seconds()) % 60
+	var parts []string
+	if h > 0 {
+		parts = append(parts, fmt.Sprintf("%dh", h))
+	}
+	if m > 0 {
+		parts = append(parts, fmt.Sprintf("%dm", m))
+	}
+	if s > 0 {
+		parts = append(parts, fmt.Sprintf("%ds", s))
+	}
+	if len(parts) == 0 {
+		return "0m"
+	}
+	return strings.Join(parts, " ")
 }
 
 func FormatDateTime(t time.Time) string {

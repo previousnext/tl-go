@@ -80,7 +80,13 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				footer = append(footer, "", "")
 			}
 
-			return util.PrintTable(cmd.OutOrStdout(), header, rows, footer)
+			err = util.PrintTable(cmd.OutOrStdout(), header, rows, footer)
+			if err != nil {
+				return fmt.Errorf("error printing table: %w", err)
+			}
+			util.PrintIssueLinks(cmd.OutOrStdout(), entries)
+			
+			return nil
 		},
 	}
 
