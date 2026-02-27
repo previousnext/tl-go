@@ -19,6 +19,7 @@ import (
 	"github.com/previousnext/tl-go/cmd/fetch"
 	"github.com/previousnext/tl-go/cmd/issues"
 	"github.com/previousnext/tl-go/cmd/list"
+	"github.com/previousnext/tl-go/cmd/manpages"
 	"github.com/previousnext/tl-go/cmd/migrate"
 	"github.com/previousnext/tl-go/cmd/review"
 	"github.com/previousnext/tl-go/cmd/send"
@@ -94,6 +95,8 @@ func init() {
 	rootCmd.CompletionOptions = cobra.CompletionOptions{
 		HiddenDefaultCmd: true,
 	}
+
+	rootCmd.AddCommand(manpages.NewCommand(rootCmd))
 
 	// We need to lazy-initialise injected dependencies so that
 	// viper has a chance to read in the config.

@@ -2,6 +2,13 @@ project_name: tl
 
 version: 2
 
+before:
+  hooks:
+    - mkdir -p .goreleaser-tmp/completions .goreleaser-tmp/manpages
+    - sh -c "go run . completion bash > .goreleaser-tmp/completions/tl.bash"
+    - sh -c "go run . manpages --out-dir .goreleaser-tmp/manpages"
+    - sh -c "for f in .goreleaser-tmp/manpages/*.1; do gzip -c \"$f\" > \"$f.gz\"; done"
+
 builds:
   - id: tl
     binary: tl
@@ -34,3 +41,12 @@ nfpms:
     homepage: https://www.previousnext.com.au
     description: Command line time logger for Jira
     formats: [ deb, rpm ]
+    contents:
+      - src: .goreleaser-tmp/completions/tl.bash
+        dst: /usr/share/bash-completion/completions/tl
+        file_info:
+          mode: 0644
+      - src: .goreleaser-tmp/manpages/*.gz
+        dst: /usr/share/man/man1/
+        file_info:
+          mode: 0644
