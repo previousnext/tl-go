@@ -24,13 +24,15 @@ type TimerEntryServiceInterface interface {
 type TimerEntryService struct {
 	timerEntryStorage db.TimerEntryStorageInterface
 	timeEntryStorage  db.TimeEntriesInterface
+	syncService       SyncInterface
 	now               func() time.Time
 }
 
-func NewTimerEntryService(timerEntryStorage db.TimerEntryStorageInterface, timeEntryStorage db.TimeEntriesInterface) *TimerEntryService {
+func NewTimerEntryService(timerEntryStorage db.TimerEntryStorageInterface, timeEntryStorage db.TimeEntriesInterface, syncService SyncInterface) *TimerEntryService {
 	return &TimerEntryService{
 		timerEntryStorage: timerEntryStorage,
 		timeEntryStorage:  timeEntryStorage,
+		syncService:       syncService,
 		now:               time.Now,
 	}
 }
@@ -169,8 +171,15 @@ func (s *TimerEntryService) StopTimeEntry(id *uint) (*model.TimeEntry, error) {
 		description = *entry.Description
 	}
 
+	issue, err := s.syncService.SyncIssue(entry.IssueKey)
+	if err != nil {
+		return nil, err
+	}
+
 	timeEntry := &model.TimeEntry{
 		IssueKey:    entry.IssueKey,
+		IssueID:     issue.ID,
+		Issue:       issue,
 		Duration:    dur,
 		Description: description,
 		Sent:        false,

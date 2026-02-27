@@ -12,7 +12,7 @@ import (
 	"github.com/previousnext/tl-go/internal/service"
 )
 
-func NewCommand(timerService func() service.TimerEntryServiceInterface, issueStorage func() db.IssueStorageInterface, syncService func() service.SyncInterface) *cobra.Command {
+func NewCommand(timerService func() service.TimerEntryServiceInterface, issueStorage func() db.IssueStorageInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "timer",
 		Short: "Start, stop, pause, resume, and list timer entries.",
@@ -20,7 +20,7 @@ func NewCommand(timerService func() service.TimerEntryServiceInterface, issueSto
 	}
 
 	cmd.AddCommand(startcmd.NewCommand(timerService, issueStorage))
-	cmd.AddCommand(stopcmd.NewCommand(timerService, syncService))
+	cmd.AddCommand(stopcmd.NewCommand(timerService))
 	cmd.AddCommand(pausecmd.NewCommand(timerService))
 	cmd.AddCommand(resumecmd.NewCommand(timerService))
 	cmd.AddCommand(listcmd.NewCommand(timerService))
