@@ -7,35 +7,38 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/model"
+	"github.com/previousnext/tl-go/internal/service"
 )
 
-type mockCurrentTimeEntryStorage struct {
-	entry  *model.CurrentTimeEntry
+type mockTimerEntryStorage struct {
+	entry  *model.TimerEntry
 	retErr error
 }
 
-func (m *mockCurrentTimeEntryStorage) StartTimeEntry(issueKey string) error     { return nil }
-func (m *mockCurrentTimeEntryStorage) PauseTimeEntry() error                    { return nil }
-func (m *mockCurrentTimeEntryStorage) StopTimeEntry() (*model.TimeEntry, error) { return nil, nil }
-func (m *mockCurrentTimeEntryStorage) GetCurrentTimeEntry() (*model.CurrentTimeEntry, error) {
+func (m *mockTimerEntryStorage) StartTimeEntry(issueKey string) error     { return nil }
+func (m *mockTimerEntryStorage) PauseTimeEntry() error                    { return nil }
+func (m *mockTimerEntryStorage) StopTimeEntry() (*model.TimeEntry, error) { return nil, nil }
+func (m *mockTimerEntryStorage) GetTimerEntry() (*model.TimerEntry, error) {
 	return m.entry, m.retErr
 }
-func (m *mockCurrentTimeEntryStorage) SaveCurrentTimeEntry(entry *model.CurrentTimeEntry) error {
+func (m *mockTimerEntryStorage) SaveTimerEntry(entry *model.TimerEntry) error {
 	return nil
+}
+func (m *mockTimerEntryStorage) FindAllTimerEntries() ([]*model.TimerEntry, error) {
+	return nil, nil
 }
 
 func TestShowCommand_InProgress(t *testing.T) {
-	mock := &mockCurrentTimeEntryStorage{
-		entry: &model.CurrentTimeEntry{
+	mock := &mockTimerEntryStorage{
+		entry: &model.TimerEntry{
 			IssueKey:  "PNX-123",
 			StartTime: time.Now(),
 			Paused:    false,
 			Duration:  0,
 		},
 	}
-	cmd := NewCommand(func() db.CurrentTimeEntryStorageInterface { return mock })
+	cmd := NewCommand(func() service.TimerEntryStorageInterface { return mock })
 	buf := new(bytes.Buffer)
 	cmd.SetOut(buf)
 	cmd.SetArgs([]string{})
@@ -49,8 +52,8 @@ func TestShowCommand_InProgress(t *testing.T) {
 func TestShowCommand_Paused(t *testing.T) {
 	start := time.Now()
 	pause := start.Add(5 * time.Minute)
-	mock := &mockCurrentTimeEntryStorage{
-		entry: &model.CurrentTimeEntry{
+	mock := &mockTimerEntryStorage{
+		entry: &model.TimerEntry{
 			IssueKey:  "PNX-456",
 			StartTime: start,
 			Paused:    true,
@@ -58,7 +61,7 @@ func TestShowCommand_Paused(t *testing.T) {
 			Duration:  0,
 		},
 	}
-	cmd := NewCommand(func() db.CurrentTimeEntryStorageInterface { return mock })
+	cmd := NewCommand(func() service.TimerEntryStorageInterface { return mock })
 	buf := new(bytes.Buffer)
 	cmd.SetOut(buf)
 	cmd.SetArgs([]string{})
@@ -70,8 +73,8 @@ func TestShowCommand_Paused(t *testing.T) {
 }
 
 func TestShowCommand_NoEntry(t *testing.T) {
-	mock := &mockCurrentTimeEntryStorage{entry: nil, retErr: nil}
-	cmd := NewCommand(func() db.CurrentTimeEntryStorageInterface { return mock })
+	mock := &mockTimerEntryStorage{entry: nil, retErr: nil}
+	cmd := NewCommand(func() service.TimerEntryStorageInterface { return mock })
 	buf := new(bytes.Buffer)
 	cmd.SetOut(buf)
 	cmd.SetArgs([]string{})

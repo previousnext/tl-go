@@ -28,7 +28,7 @@ func NewRepository(dbPath string) *Repository {
 func (r *Repository) AutoMigrate() error {
 	db := r.openDB()
 	return db.AutoMigrate(
-		&model.CurrentTimeEntry{},
+		&model.TimerEntry{},
 		&model.Category{},
 		&model.TimeEntry{},
 		&model.Issue{},

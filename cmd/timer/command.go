@@ -12,7 +12,7 @@ import (
 	"github.com/previousnext/tl-go/internal/service"
 )
 
-func NewCommand(currentTimeStorage func() db.CurrentTimeEntryStorageInterface, issueStorage func() db.IssueStorageInterface, syncService func() service.SyncInterface) *cobra.Command {
+func NewCommand(currentTimeStorage func() service.TimerEntryStorageInterface, issueStorage func() db.IssueStorageInterface, syncService func() service.SyncInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "timer",
 		Short: "Start, stop, pause, and show the current timer session.",

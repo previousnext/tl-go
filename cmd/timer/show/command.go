@@ -6,18 +6,18 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/model"
+	"github.com/previousnext/tl-go/internal/service"
 	"github.com/previousnext/tl-go/internal/util"
 )
 
-func NewCommand(currentTimeStorage func() db.CurrentTimeEntryStorageInterface) *cobra.Command {
+func NewCommand(currentTimeStorage func() service.TimerEntryStorageInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "show",
 		Short: "Show the current in-progress time entry",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			storage := currentTimeStorage()
-			entry, err := storage.GetCurrentTimeEntry()
+			entry, err := storage.GetTimerEntry()
 			if err != nil || entry == nil {
 				_, _ = fmt.Fprintln(cmd.OutOrStdout(), "No current time entry in progress.")
 				return nil

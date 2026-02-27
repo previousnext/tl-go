@@ -119,7 +119,10 @@ func init() {
 	syncFunc := func() service.SyncInterface {
 		return service.NewSync(issueStorageFunc, jiraClientFunc)
 	}
-	currentTimeStorageFunc := func() db.CurrentTimeEntryStorageInterface { return db.NewRepository(viper.GetString("db_file")) }
+	currentTimeStorageFunc := func() service.TimerEntryStorageInterface {
+		repo := db.NewRepository(viper.GetString("db_file"))
+		return service.NewTimerEntryService(repo, repo)
+	}
 
 	rootCmd.AddCommand(add.NewCommand(timeEntriesFunc, syncFunc, issueStorageFunc))
 	rootCmd.AddCommand(alias.NewCommand())

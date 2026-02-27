@@ -5,20 +5,29 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/previousnext/tl-go/internal/db"
+	"github.com/previousnext/tl-go/internal/service"
 )
 
-func NewCommand(currentTimeStorage func() db.CurrentTimeEntryStorageInterface) *cobra.Command {
+var (
+	cmdUse   = "pause"
+	cmdShort = "Pause the current time entry"
+	cmdLong  = `Pause the current time entry.
+
+This command will pause the timer for the current time entry, if one is in progress.`
+)
+
+func NewCommand(currentTimeStorage func() service.TimerEntryStorageInterface) *cobra.Command {
 	return &cobra.Command{
-		Use:   "pause",
-		Short: "Pause the current time entry",
+		Use:   cmdUse,
+		Short: cmdShort,
+		Long:  cmdLong,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := currentTimeStorage().PauseTimeEntry()
 			if err != nil {
-				fmt.Fprintf(cmd.OutOrStdout(), "No current time entry to pause.\n")
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "No current time entry to pause.\n")
 				return err
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Current time entry has been paused.\n")
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Current time entry has been paused.\n")
 			return nil
 		},
 	}

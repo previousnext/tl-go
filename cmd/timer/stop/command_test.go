@@ -8,28 +8,30 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
-	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/model"
 	"github.com/previousnext/tl-go/internal/service"
 )
 
-type mockCurrentTimeEntryStorage struct {
+type mockTimerEntryStorage struct {
 	entry  *model.TimeEntry
 	retErr error
 }
 
-func (m *mockCurrentTimeEntryStorage) StopTimeEntry() (*model.TimeEntry, error) {
+func (m *mockTimerEntryStorage) StopTimeEntry() (*model.TimeEntry, error) {
 	return m.entry, m.retErr
 }
 
 // Implement other methods to satisfy the interface (no-op)
-func (m *mockCurrentTimeEntryStorage) StartTimeEntry(issueKey string) error { return nil }
-func (m *mockCurrentTimeEntryStorage) PauseTimeEntry() error                { return nil }
-func (m *mockCurrentTimeEntryStorage) GetCurrentTimeEntry() (*model.CurrentTimeEntry, error) {
+func (m *mockTimerEntryStorage) StartTimeEntry(issueKey string) error { return nil }
+func (m *mockTimerEntryStorage) PauseTimeEntry() error                { return nil }
+func (m *mockTimerEntryStorage) GetTimerEntry() (*model.TimerEntry, error) {
 	return nil, nil
 }
-func (m *mockCurrentTimeEntryStorage) SaveCurrentTimeEntry(entry *model.CurrentTimeEntry) error {
+func (m *mockTimerEntryStorage) SaveTimerEntry(entry *model.TimerEntry) error {
 	return nil
+}
+func (m *mockTimerEntryStorage) FindAllTimerEntries() ([]*model.TimerEntry, error) {
+	return nil, nil
 }
 
 type mockSyncService struct {
@@ -43,7 +45,7 @@ func (m *mockSyncService) SyncIssue(issueKey string, options ...service.SyncOpti
 func (m *mockSyncService) SyncIssues(issueKeys []string) error { return nil }
 
 func TestStopCommand_CallsSyncIssue(t *testing.T) {
-	mockStorage := &mockCurrentTimeEntryStorage{
+	mockStorage := &mockTimerEntryStorage{
 		entry: &model.TimeEntry{
 			Model:    gorm.Model{CreatedAt: time.Now()},
 			IssueKey: "PNX-123",
@@ -52,7 +54,7 @@ func TestStopCommand_CallsSyncIssue(t *testing.T) {
 	}
 	mockSync := &mockSyncService{}
 	cmd := NewCommand(
-		func() db.CurrentTimeEntryStorageInterface { return mockStorage },
+		func() service.TimerEntryStorageInterface { return mockStorage },
 		func() service.SyncInterface { return mockSync },
 	)
 	buf := new(bytes.Buffer)

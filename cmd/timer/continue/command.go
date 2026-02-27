@@ -6,16 +6,16 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/previousnext/tl-go/internal/db"
+	"github.com/previousnext/tl-go/internal/service"
 )
 
-func NewCommand(currentTimeStorage func() db.CurrentTimeEntryStorageInterface) *cobra.Command {
+func NewCommand(currentTimeStorage func() service.TimerEntryStorageInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "continue",
 		Short: "Continue (un-pause) the current time entry",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			storage := currentTimeStorage()
-			entry, err := storage.GetCurrentTimeEntry()
+			entry, err := storage.GetTimerEntry()
 			if err != nil || entry == nil {
 				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "No paused time entry to continue.\n")
 				return err
@@ -33,7 +33,7 @@ func NewCommand(currentTimeStorage func() db.CurrentTimeEntryStorageInterface) *
 			entry.Paused = false
 			entry.StartTime = time.Now()
 			entry.PauseTime = time.Time{}
-			if err := storage.SaveCurrentTimeEntry(entry); err != nil {
+			if err := storage.SaveTimerEntry(entry); err != nil {
 				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Failed to continue time entry: %v\n", err)
 				return err
 			}
