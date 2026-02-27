@@ -121,7 +121,7 @@ func init() {
 	}
 	timerServiceFunc := func() service.TimerEntryServiceInterface {
 		repo := db.NewRepository(viper.GetString("db_file"))
-		return service.NewTimerEntryService(repo, repo)
+		return service.NewTimerEntryService(repo, repo, syncFunc())
 	}
 
 	rootCmd.AddCommand(add.NewCommand(timeEntriesFunc, syncFunc, issueStorageFunc))
@@ -137,7 +137,7 @@ func init() {
 	rootCmd.AddCommand(setup.NewCommand(repositoryFunc))
 	rootCmd.AddCommand(summary.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(show.NewCommand(timeEntriesFunc))
-	rootCmd.AddCommand(timercmd.NewCommand(timerServiceFunc, issueStorageFunc, syncFunc))
+	rootCmd.AddCommand(timercmd.NewCommand(timerServiceFunc, issueStorageFunc))
 }
 
 // initConfig reads in config file and ENV variables if set.

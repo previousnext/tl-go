@@ -90,6 +90,16 @@ func (m *mockTimeEntriesStorage) GetSummaryByCategory(start time.Time, end time.
 	return nil, nil
 }
 
+type mockSyncService struct {
+	issueID uint
+}
+
+func (m *mockSyncService) SyncIssue(issueKey string, options ...SyncOption) (*model.Issue, error) {
+	return &model.Issue{Model: gorm.Model{ID: m.issueID}, Key: issueKey}, nil
+}
+
+func (m *mockSyncService) SyncIssues(issueKeys []string) error { return nil }
+
 func TestTimerEntryService_TimerWorkflow(t *testing.T) {
 	start := time.Date(2026, 2, 27, 9, 0, 0, 0, time.Local)
 	pause := start.Add(5 * time.Minute)
@@ -100,7 +110,8 @@ func TestTimerEntryService_TimerWorkflow(t *testing.T) {
 
 	mockTimer := &mockTimerEntryStorage{}
 	mockTimeEntries := &mockTimeEntriesStorage{}
-	service := NewTimerEntryService(mockTimer, mockTimeEntries)
+	syncService := &mockSyncService{issueID: 101}
+	service := NewTimerEntryService(mockTimer, mockTimeEntries, syncService)
 	service.now = func() time.Time {
 		current := nowTimes[idx]
 		idx++
@@ -128,7 +139,8 @@ func TestTimerEntryService_StopRoundsToQuarterHour(t *testing.T) {
 
 	mockTimer := &mockTimerEntryStorage{}
 	mockTimeEntries := &mockTimeEntriesStorage{}
-	service := NewTimerEntryService(mockTimer, mockTimeEntries)
+	syncService := &mockSyncService{issueID: 102}
+	service := NewTimerEntryService(mockTimer, mockTimeEntries, syncService)
 	service.now = func() time.Time {
 		current := nowTimes[idx]
 		idx++
@@ -160,7 +172,8 @@ func TestTimerEntryService_StopByID(t *testing.T) {
 		},
 	}
 	mockTimeEntries := &mockTimeEntriesStorage{}
-	service := NewTimerEntryService(mockTimer, mockTimeEntries)
+	syncService := &mockSyncService{issueID: 103}
+	service := NewTimerEntryService(mockTimer, mockTimeEntries, syncService)
 	service.now = func() time.Time {
 		current := nowTimes[idx]
 		idx++
@@ -172,12 +185,16 @@ func TestTimerEntryService_StopByID(t *testing.T) {
 	assert.NotNil(t, entry)
 	assert.Equal(t, "PNX-777", entry.IssueKey)
 	assert.NotNil(t, mockTimeEntries.created)
+	assert.NotNil(t, mockTimeEntries.created.Issue)
+	assert.Equal(t, uint(103), mockTimeEntries.created.IssueID)
+	assert.Equal(t, "PNX-777", mockTimeEntries.created.Issue.Key)
 }
 
 func TestTimerEntryService_StopByID_NotFound(t *testing.T) {
 	mockTimer := &mockTimerEntryStorage{entry: nil}
 	mockTimeEntries := &mockTimeEntriesStorage{}
-	service := NewTimerEntryService(mockTimer, mockTimeEntries)
+	syncService := &mockSyncService{issueID: 104}
+	service := NewTimerEntryService(mockTimer, mockTimeEntries, syncService)
 
 	entry, err := service.StopTimeEntry(func() *uint { v := uint(123); return &v }())
 	assert.Nil(t, entry)
@@ -193,7 +210,8 @@ func TestTimerEntryService_OnlyOneActiveTimer(t *testing.T) {
 
 	mockTimer := &mockTimerEntryStorage{}
 	mockTimeEntries := &mockTimeEntriesStorage{}
-	service := NewTimerEntryService(mockTimer, mockTimeEntries)
+	syncService := &mockSyncService{issueID: 105}
+	service := NewTimerEntryService(mockTimer, mockTimeEntries, syncService)
 	service.now = func() time.Time {
 		current := nowTimes[idx]
 		idx++
