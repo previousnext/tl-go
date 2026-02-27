@@ -112,7 +112,3 @@ func TestNewCommand_PrintsEntriesWithNilCategory(t *testing.T) {
 	assert.Contains(t, output, "2h")
 	assert.Contains(t, output, "30m")
 }
-
-func TestSanity(t *testing.T) {
-	t.Log("Sanity test ran")
-}
