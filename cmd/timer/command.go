@@ -6,7 +6,6 @@ import (
 	listcmd "github.com/previousnext/tl-go/cmd/timer/list"
 	pausecmd "github.com/previousnext/tl-go/cmd/timer/pause"
 	resumecmd "github.com/previousnext/tl-go/cmd/timer/resume"
-	showcmd "github.com/previousnext/tl-go/cmd/timer/show"
 	startcmd "github.com/previousnext/tl-go/cmd/timer/start"
 	stopcmd "github.com/previousnext/tl-go/cmd/timer/stop"
 	"github.com/previousnext/tl-go/internal/db"
@@ -16,14 +15,13 @@ import (
 func NewCommand(timerService func() service.TimerEntryServiceInterface, issueStorage func() db.IssueStorageInterface, syncService func() service.SyncInterface) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "timer",
-		Short: "Start, stop, pause, and show the current timer session.",
-		Long:  "Start, stop, pause, and show the current timer session. This is used to track time spent on an issue in real-time.",
+		Short: "Start, stop, pause, resume, and list timer entries.",
+		Long:  "Start, stop, pause, resume, and list timer entries. This is used to track time spent on an issue in real-time.",
 	}
 
 	cmd.AddCommand(startcmd.NewCommand(timerService, issueStorage))
 	cmd.AddCommand(stopcmd.NewCommand(timerService, syncService))
 	cmd.AddCommand(pausecmd.NewCommand(timerService))
-	cmd.AddCommand(showcmd.NewCommand(timerService))
 	cmd.AddCommand(resumecmd.NewCommand(timerService))
 	cmd.AddCommand(listcmd.NewCommand(timerService))
 	return cmd

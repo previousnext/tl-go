@@ -14,6 +14,7 @@ type TimerEntryStorageInterface interface {
 	GetTimerEntry() (*model.TimerEntry, error)
 	SaveTimerEntry(entry *model.TimerEntry) error
 	FindAllTimerEntries() ([]*model.TimerEntry, error)
+	FindTimerEntryByID(id uint) (*model.TimerEntry, error)
 }
 
 func (r *Repository) CreateTimerEntry(entry *model.TimerEntry) error {
@@ -65,4 +66,13 @@ func (r *Repository) FindAllTimerEntries() ([]*model.TimerEntry, error) {
 		return entries, fmt.Errorf("failed to retrieve time entries: %w", err)
 	}
 	return entries, nil
+}
+
+func (r *Repository) FindTimerEntryByID(id uint) (*model.TimerEntry, error) {
+	db := r.openDB()
+	var entry model.TimerEntry
+	if err := db.First(&entry, id).Error; err != nil {
+		return nil, err
+	}
+	return &entry, nil
 }

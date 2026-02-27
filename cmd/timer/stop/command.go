@@ -2,6 +2,7 @@ package stop
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/spf13/cobra"
 
@@ -11,10 +12,21 @@ import (
 
 func NewCommand(timerService func() service.TimerEntryServiceInterface, syncService func() service.SyncInterface) *cobra.Command {
 	return &cobra.Command{
-		Use:   "stop",
+		Use:   "stop [timer-id]",
 		Short: "Stop tracking time and save entry",
+		Args:  cobra.RangeArgs(0, 1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			entry, err := timerService().StopTimeEntry()
+			var timerID *uint
+			if len(args) == 1 {
+				parsed, err := strconv.ParseUint(args[0], 10, 64)
+				if err != nil {
+					_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Invalid timer ID: %s\n", args[0])
+					return err
+				}
+				id := uint(parsed)
+				timerID = &id
+			}
+			entry, err := timerService().StopTimeEntry(timerID)
 			if err != nil {
 				return err
 			}

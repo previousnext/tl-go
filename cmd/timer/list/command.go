@@ -12,11 +12,11 @@ import (
 )
 
 var (
-	cmdShort   = `List all time entries`
-	cmdLong    = `List all time entries in the database.`
+	cmdShort   = `List all timer entries`
+	cmdLong    = `List all timer entries in the database.`
 	cmdExample = `
-  # List all time entries
-  tl list`
+  # List all timer entries
+  tl timer list`
 )
 
 func NewCommand(timerService func() service.TimerEntryServiceInterface) *cobra.Command {
