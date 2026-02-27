@@ -11,7 +11,7 @@ import (
 )
 
 type TimerEntryServiceInterface interface {
-	StartTimeEntry(issueKey string) error
+	StartTimeEntry(issueKey string, description *string) error
 	PauseTimeEntry() error
 	ResumeTimerEntry() error
 	StopTimeEntry() (*model.TimeEntry, error)
@@ -34,7 +34,7 @@ func NewTimerEntryService(timerEntryStorage db.TimerEntryStorageInterface, timeE
 	}
 }
 
-func (s *TimerEntryService) StartTimeEntry(issueKey string) error {
+func (s *TimerEntryService) StartTimeEntry(issueKey string, description *string) error {
 	now := s.now()
 	prev, err := s.timerEntryStorage.FindLatestActiveTimerEntry()
 	if err == nil && prev != nil {
@@ -59,6 +59,7 @@ func (s *TimerEntryService) StartTimeEntry(issueKey string) error {
 		LastActiveTime: now,
 		Paused:         false,
 		Duration:       0,
+		Description:    description,
 	}
 	return s.timerEntryStorage.CreateTimerEntry(entry)
 }
@@ -126,10 +127,16 @@ func (s *TimerEntryService) StopTimeEntry() (*model.TimeEntry, error) {
 	}
 	dur = roundUpToQuarterHour(dur)
 
+	description := ""
+	if entry.Description != nil {
+		description = *entry.Description
+	}
+
 	timeEntry := &model.TimeEntry{
-		IssueKey: entry.IssueKey,
-		Duration: dur,
-		Sent:     false,
+		IssueKey:    entry.IssueKey,
+		Duration:    dur,
+		Description: description,
+		Sent:        false,
 	}
 	if err := s.timeEntryStorage.CreateTimeEntry(timeEntry); err != nil {
 		return nil, err

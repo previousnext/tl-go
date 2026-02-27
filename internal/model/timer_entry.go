@@ -13,4 +13,5 @@ type TimerEntry struct {
 	Paused         bool
 	PauseTime      time.Time
 	Duration       time.Duration // accumulated duration
+	Description    *string
 }

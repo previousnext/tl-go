@@ -3,6 +3,7 @@ package timer
 import (
 	"github.com/spf13/cobra"
 
+	listcmd "github.com/previousnext/tl-go/cmd/timer/list"
 	pausecmd "github.com/previousnext/tl-go/cmd/timer/pause"
 	resumecmd "github.com/previousnext/tl-go/cmd/timer/resume"
 	showcmd "github.com/previousnext/tl-go/cmd/timer/show"
@@ -24,5 +25,6 @@ func NewCommand(timerService func() service.TimerEntryServiceInterface, issueSto
 	cmd.AddCommand(pausecmd.NewCommand(timerService))
 	cmd.AddCommand(showcmd.NewCommand(timerService))
 	cmd.AddCommand(resumecmd.NewCommand(timerService))
+	cmd.AddCommand(listcmd.NewCommand(timerService))
 	return cmd
 }

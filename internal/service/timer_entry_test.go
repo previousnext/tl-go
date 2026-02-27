@@ -97,7 +97,7 @@ func TestTimerEntryService_TimerWorkflow(t *testing.T) {
 		return current
 	}
 
-	assert.NoError(t, service.StartTimeEntry("PNX-123"))
+	assert.NoError(t, service.StartTimeEntry("PNX-123", nil))
 	assert.NoError(t, service.PauseTimeEntry())
 	assert.NoError(t, service.ResumeTimerEntry())
 	timeEntry, err := service.StopTimeEntry()
@@ -125,7 +125,7 @@ func TestTimerEntryService_StopRoundsToQuarterHour(t *testing.T) {
 		return current
 	}
 
-	assert.NoError(t, service.StartTimeEntry("PNX-456"))
+	assert.NoError(t, service.StartTimeEntry("PNX-456", nil))
 	entry, err := service.StopTimeEntry()
 	assert.NoError(t, err)
 	assert.NotNil(t, entry)
