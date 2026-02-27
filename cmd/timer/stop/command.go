@@ -9,12 +9,12 @@ import (
 	"github.com/previousnext/tl-go/internal/service"
 )
 
-func NewCommand(currentTimeStorage func() service.TimerEntryStorageInterface, syncService func() service.SyncInterface) *cobra.Command {
+func NewCommand(timerService func() service.TimerEntryServiceInterface, syncService func() service.SyncInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "stop",
 		Short: "Stop tracking time and save entry",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			entry, err := currentTimeStorage().StopTimeEntry()
+			entry, err := timerService().StopTimeEntry()
 			if err != nil {
 				return err
 			}

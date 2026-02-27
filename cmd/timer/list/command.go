@@ -14,7 +14,7 @@ var (
   tl list`
 )
 
-func NewCommand(currentTimeStorage func() service.TimerEntryStorageInterface) *cobra.Command {
+func NewCommand(timerService func() service.TimerEntryServiceInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:                   "list",
 		Args:                  cobra.NoArgs,
@@ -23,7 +23,10 @@ func NewCommand(currentTimeStorage func() service.TimerEntryStorageInterface) *c
 		Long:                  cmdLong,
 		Example:               cmdExample,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			currentTimeStorage().FindAllTimerEntries()
+			_, err := timerService().FindAllTimerEntries()
+			if err != nil {
+				return err
+			}
 			return nil
 		},
 	}

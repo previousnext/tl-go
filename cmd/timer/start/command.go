@@ -1,14 +1,15 @@
 package start
 
 import (
+	"github.com/spf13/cobra"
+
 	"github.com/previousnext/tl-go/internal/alias"
 	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/service"
 	"github.com/previousnext/tl-go/internal/util"
-	"github.com/spf13/cobra"
 )
 
-func NewCommand(currentTimeStorage func() service.TimerEntryStorageInterface, issueStorage func() db.IssueStorageInterface) *cobra.Command {
+func NewCommand(timerService func() service.TimerEntryServiceInterface, issueStorage func() db.IssueStorageInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "start [issue-key]",
 		Short: "Start tracking time for an issue",
@@ -22,7 +23,7 @@ func NewCommand(currentTimeStorage func() service.TimerEntryStorageInterface, is
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueKey := alias.ResolveAlias(args[0])
-			return currentTimeStorage().StartTimeEntry(issueKey)
+			return timerService().StartTimeEntry(issueKey)
 		},
 	}
 }

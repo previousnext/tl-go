@@ -11,15 +11,15 @@ import (
 	"github.com/previousnext/tl-go/internal/util"
 )
 
-func NewCommand(currentTimeStorage func() service.TimerEntryStorageInterface) *cobra.Command {
+func NewCommand(timerService func() service.TimerEntryServiceInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "show",
-		Short: "Show the current in-progress time entry",
+		Short: "Show the current in-progress timer entry",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			storage := currentTimeStorage()
+			storage := timerService()
 			entry, err := storage.GetTimerEntry()
 			if err != nil || entry == nil {
-				_, _ = fmt.Fprintln(cmd.OutOrStdout(), "No current time entry in progress.")
+				_, _ = fmt.Fprintln(cmd.OutOrStdout(), "No timer entry in progress.")
 				return nil
 			}
 

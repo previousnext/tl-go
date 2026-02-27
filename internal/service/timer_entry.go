@@ -10,9 +10,10 @@ import (
 	"github.com/previousnext/tl-go/internal/model"
 )
 
-type TimerEntryStorageInterface interface {
+type TimerEntryServiceInterface interface {
 	StartTimeEntry(issueKey string) error
 	PauseTimeEntry() error
+	ResumeTimerEntry() error
 	StopTimeEntry() (*model.TimeEntry, error)
 	GetTimerEntry() (*model.TimerEntry, error)
 	SaveTimerEntry(entry *model.TimerEntry) error
@@ -82,6 +83,22 @@ func (s *TimerEntryService) PauseTimeEntry() error {
 	return s.timerEntryStorage.SaveTimerEntry(entry)
 }
 
+func (s *TimerEntryService) ResumeTimerEntry() error {
+	entry, err := s.timerEntryStorage.GetTimerEntry()
+	if err != nil || entry == nil {
+		return errors.New("no paused timer entry to resume")
+	}
+	if !entry.Paused {
+		return errors.New("timer entry is not paused")
+	}
+	now := s.now()
+	entry.Paused = false
+	entry.StartTime = now
+	entry.LastActiveTime = now
+	entry.PauseTime = time.Time{}
+	return s.timerEntryStorage.SaveTimerEntry(entry)
+}
+
 func (s *TimerEntryService) StopTimeEntry() (*model.TimeEntry, error) {
 	now := s.now()
 	entry, err := s.timerEntryStorage.FindLatestActiveTimerEntry()
@@ -90,7 +107,7 @@ func (s *TimerEntryService) StopTimeEntry() (*model.TimeEntry, error) {
 			entry, err = s.timerEntryStorage.FindLatestPausedTimerEntry()
 			if err != nil {
 				if errors.Is(err, gorm.ErrRecordNotFound) {
-					return nil, errors.New("no current time entry to stop")
+					return nil, errors.New("no timer entry to stop")
 				}
 				return nil, err
 			}
@@ -107,6 +124,7 @@ func (s *TimerEntryService) StopTimeEntry() (*model.TimeEntry, error) {
 		}
 		dur += now.Sub(lastActive)
 	}
+	dur = roundUpToQuarterHour(dur)
 
 	timeEntry := &model.TimeEntry{
 		IssueKey: entry.IssueKey,
@@ -132,4 +150,15 @@ func (s *TimerEntryService) SaveTimerEntry(entry *model.TimerEntry) error {
 
 func (s *TimerEntryService) FindAllTimerEntries() ([]*model.TimerEntry, error) {
 	return s.timerEntryStorage.FindAllTimerEntries()
+}
+
+func roundUpToQuarterHour(dur time.Duration) time.Duration {
+	const quarterHour = 15 * time.Minute
+	if dur <= 0 {
+		return 0
+	}
+	if dur%quarterHour == 0 {
+		return dur
+	}
+	return ((dur / quarterHour) + 1) * quarterHour
 }
