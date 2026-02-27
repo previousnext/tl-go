@@ -98,3 +98,15 @@ func (a *AliasStorage) LoadAliases() (map[string]string, error) {
 	}
 	return storage.Aliases, nil
 }
+
+// ResolveAlias returns the resolved issue key if the input is an alias, otherwise returns the input.
+func ResolveAlias(input string) string {
+	aliasStorage := NewAliasStorage()
+	aliases, err := aliasStorage.LoadAliases()
+	if err == nil {
+		if resolvedKey, ok := aliases[input]; ok {
+			return resolvedKey
+		}
+	}
+	return input
+}
