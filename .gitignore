@@ -1,4 +1,5 @@
 /.idea
-/vendor
+/.goreleaser-tmp
 /bin
 /dist
+/vendor

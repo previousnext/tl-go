@@ -39,11 +39,12 @@ COMMANDS
     issues [--flags]                          List recent issues
     list [--flags]                            List all time entries
     migrate                                   Migrate the database schema to the latest version.
-    review                                    Review unsent time entries
+    review [--flags]                          Review unsent time entries
     send                                      Send time entries to Jira
     setup [--flags]                           Setup tl database and configuration
     show <id>                                 Show details of a time entry
     summary [--flags]                         Show a summary of time spent per project category
+    timer [command]                           Start, stop, pause, resume, and list timer entries.
 ```
 
 ### Adding bash completion
