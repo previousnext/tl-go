@@ -5,4 +5,6 @@ const (
 	HexOrange = "#ee5622"
 	// HexWhite is white.
 	HexWhite = "#ffffff"
+	// HexBlack is black.
+	HexBlack = "#000000"
 )
