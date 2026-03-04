@@ -1,10 +1,12 @@
 package send
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
 	"github.com/spf13/cobra"
+	"gorm.io/gorm"
 
 	"github.com/previousnext/tl-go/internal/api"
 	"github.com/previousnext/tl-go/internal/api/types"
@@ -37,7 +39,11 @@ func NewCommand(r func() db.TimeEntriesInterface, j func() api.JiraClientInterfa
 
 				timeEntry, err := repository.FindTimeEntry(entryID)
 				if err != nil {
-					return fmt.Errorf("could not find time entry with ID %d: %v", entryID, err)
+					if errors.Is(err, gorm.ErrRecordNotFound) {
+						_, _ = fmt.Fprintf(cmd.OutOrStdout(), "No entry with ID %d\n", entryID)
+						return nil
+					}
+					return fmt.Errorf("could not find time entry with ID %d: %w", entryID, err)
 				}
 
 				worklog := types.WorklogRecord{
@@ -48,13 +54,13 @@ func NewCommand(r func() db.TimeEntriesInterface, j func() api.JiraClientInterfa
 				}
 				err = jiraClient.AddWorkLog(worklog)
 				if err != nil {
-					return fmt.Errorf("failed to send time entry ID %d to Jira: %v", timeEntry.ID, err)
+					return fmt.Errorf("failed to send time entry ID %d to Jira: %w", timeEntry.ID, err)
 				}
 
 				timeEntry.Sent = true
 				err = repository.UpdateTimeEntry(timeEntry)
 				if err != nil {
-					return fmt.Errorf("failed to mark time entry ID %d as sent: %v", timeEntry.ID, err)
+					return fmt.Errorf("failed to mark time entry ID %d as sent: %w", timeEntry.ID, err)
 				}
 
 				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Resent time entry ID %d to Jira\n", entryID)
