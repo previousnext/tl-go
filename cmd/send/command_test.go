@@ -97,7 +97,7 @@ func TestSendEntryByID(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NoError(t, err)
-	assert.Contains(t, buf.String(), "Resent time entry ID 42 to Jira")
+	assert.Contains(t, buf.String(), "Sent time entry ID 42 to Jira")
 	assert.NotNil(t, updatedEntry)
 	assert.True(t, updatedEntry.Sent)
 }
