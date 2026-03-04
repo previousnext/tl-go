@@ -63,7 +63,7 @@ func NewCommand(r func() db.TimeEntriesInterface, j func() api.JiraClientInterfa
 					return fmt.Errorf("failed to mark time entry ID %d as sent: %w", timeEntry.ID, err)
 				}
 
-				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Resent time entry ID %d to Jira\n", entryID)
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Sent time entry ID %d to Jira\n", entryID)
 				return nil
 			}
 
