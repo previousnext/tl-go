@@ -110,3 +110,21 @@ func TestParseHumanDate(t *testing.T) {
 		})
 	}
 }
+
+func TestParseHumanDate_LastMonth_EndOfMonthRef(t *testing.T) {
+	endOfMonthRef := time.Date(2026, 3, 31, 12, 0, 0, 0, time.UTC)
+
+	gotStart, gotEnd, gotLabel, err := ParseHumanDate("last month", endOfMonthRef)
+	if err != nil {
+		t.Fatalf("ParseHumanDate returned error: %v", err)
+	}
+
+	wantStart := time.Date(2026, 2, 1, 0, 0, 0, 0, time.UTC)
+	wantEnd := time.Date(2026, 2, 28, 23, 59, 59, int(time.Second-time.Nanosecond), time.UTC)
+	wantLabel := "last month"
+
+	if !gotStart.Equal(wantStart) || !gotEnd.Equal(wantEnd) || gotLabel != wantLabel {
+		t.Fatalf("ParseHumanDate(%q, %v) = (%v, %v, %q), want (%v, %v, %q)",
+			"last month", endOfMonthRef, gotStart, gotEnd, gotLabel, wantStart, wantEnd, wantLabel)
+	}
+}

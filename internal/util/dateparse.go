@@ -41,7 +41,11 @@ func ParseHumanDate(s string, ref time.Time) (start, end time.Time, label string
 		end = n.EndOfMonth()
 		label = "this month"
 	case "last month":
-		lastMonth := mondayConfig.With(ref.AddDate(0, -1, 0))
+		// Derive last month from the beginning of the current month to avoid
+		// AddDate day overflow issues on end-of-month reference dates.
+		currentMonthStart := n.BeginningOfMonth()
+		prevMonthRef := currentMonthStart.AddDate(0, 0, -1)
+		lastMonth := mondayConfig.With(prevMonthRef)
 		start = lastMonth.BeginningOfMonth()
 		end = lastMonth.EndOfMonth()
 		label = "last month"

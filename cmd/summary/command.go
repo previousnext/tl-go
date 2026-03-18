@@ -65,7 +65,8 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				// Resolve --end (only when not already set by the this-week default)
 				if flagStart != "" || flagEnd != "" {
 					if flagEnd == "" {
-						end = start.AddDate(0, 0, 7)
+						// Default to a 7-day inclusive window starting at --start
+						end = start.AddDate(0, 0, 6)
 					} else {
 						end, err = time.ParseInLocation("2006-01-02", flagEnd, time.Local)
 						if err != nil {
