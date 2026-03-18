@@ -1,5 +1,6 @@
-/.idea
+/.claude/settings.local.json
 /.goreleaser-tmp
+/.idea
 /bin
 /dist
 /vendor

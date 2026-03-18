@@ -79,7 +79,7 @@ func (m *mockTimeEntriesStorage) CreateTimeEntry(entry *model.TimeEntry) error {
 }
 
 func (m *mockTimeEntriesStorage) FindTimeEntry(id uint) (*model.TimeEntry, error) { return nil, nil }
-func (m *mockTimeEntriesStorage) FindAllTimeEntries(date time.Time) ([]*model.TimeEntry, error) {
+func (m *mockTimeEntriesStorage) FindTimeEntriesInRange(start, end time.Time) ([]*model.TimeEntry, error) {
 	return nil, nil
 }
 func (m *mockTimeEntriesStorage) FindUnsentTimeEntries() ([]*model.TimeEntry, error) { return nil, nil }

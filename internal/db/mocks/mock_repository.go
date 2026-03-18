@@ -11,12 +11,12 @@ import (
 type MockRepository struct {
 	db.TimeEntriesInterface
 	db.IssueStorageInterface
-	Entries                   []*model.TimeEntry
-	FindAllTimeEntriesFunc    func(date time.Time) ([]*model.TimeEntry, error)
-	FindUnsentTimeEntriesFunc func() ([]*model.TimeEntry, error)
-	FindTimeEntryFunc         func(id uint) (*model.TimeEntry, error)
-	UpdateTimeEntryFunc       func(entry *model.TimeEntry) error
-	GetSummaryByCategoryFunc  func(start, end time.Time) ([]db.CategorySummary, error)
+	Entries                    []*model.TimeEntry
+	FindTimeEntriesInRangeFunc func(start, end time.Time) ([]*model.TimeEntry, error)
+	FindUnsentTimeEntriesFunc    func() ([]*model.TimeEntry, error)
+	FindTimeEntryFunc            func(id uint) (*model.TimeEntry, error)
+	UpdateTimeEntryFunc          func(entry *model.TimeEntry) error
+	GetSummaryByCategoryFunc     func(start, end time.Time) ([]db.CategorySummary, error)
 }
 
 var _ db.IssueStorageInterface = (*MockRepository)(nil)
@@ -39,9 +39,9 @@ func (m *MockRepository) FindTimeEntry(id uint) (*model.TimeEntry, error) {
 	}
 	return nil, nil
 }
-func (m *MockRepository) FindAllTimeEntries(date time.Time) ([]*model.TimeEntry, error) {
-	if m.FindAllTimeEntriesFunc != nil {
-		return m.FindAllTimeEntriesFunc(time.Now())
+func (m *MockRepository) FindTimeEntriesInRange(start, end time.Time) ([]*model.TimeEntry, error) {
+	if m.FindTimeEntriesInRangeFunc != nil {
+		return m.FindTimeEntriesInRangeFunc(start, end)
 	}
 	return m.Entries, nil
 }
