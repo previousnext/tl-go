@@ -9,7 +9,7 @@ import (
 type TimeEntriesInterface interface {
 	CreateTimeEntry(entry *model.TimeEntry) error
 	FindTimeEntry(id uint) (*model.TimeEntry, error)
-	FindAllTimeEntries(date time.Time) ([]*model.TimeEntry, error)
+	FindTimeEntriesInRange(start, end time.Time) ([]*model.TimeEntry, error)
 	FindUnsentTimeEntries() ([]*model.TimeEntry, error)
 	FindUniqueIssueKeys() ([]string, error)
 	UpdateTimeEntry(entry *model.TimeEntry) error
@@ -40,8 +40,7 @@ func (r *Repository) FindTimeEntry(id uint) (*model.TimeEntry, error) {
 	return &entry, nil
 }
 
-func (r *Repository) FindAllTimeEntries(date time.Time) ([]*model.TimeEntry, error) {
-	start, end := getStartAndEndOfDay(date)
+func (r *Repository) FindTimeEntriesInRange(start, end time.Time) ([]*model.TimeEntry, error) {
 	db := r.openDB()
 	var entries []*model.TimeEntry
 	if err := db.Preload("Issue.Project.Category").Where("created_at BETWEEN ? AND ?", start, end).Find(&entries).Error; err != nil {

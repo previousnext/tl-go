@@ -19,8 +19,17 @@ var (
 	flagDate   = ""
 	flagOutput = "table"
 	cmdExample = `
-  # List all time entries
-  tl list`
+  # List all time entries for today
+  tl list
+
+  # List entries using human-friendly date keywords
+  tl list --date today
+  tl list --date yesterday
+  tl list --date "last week"
+  tl list --date "this month"
+
+  # List entries for a specific date
+  tl list --date 2026-01-15`
 )
 
 func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
@@ -33,19 +42,17 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 		Example:               cmdExample,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			// Default to today's date if no date flag is provided
-			d := time.Now()
-			dateOutput := "today"
-			if flagDate != "" {
-				var err error
-				d, err = time.ParseInLocation(time.DateOnly, flagDate, time.Local)
-				if err != nil {
-					return fmt.Errorf("invalid d format: %s. Expected YYYY-MM-DD", flagDate)
-				}
-				dateOutput = flagDate
+			input := flagDate
+			if input == "" {
+				input = "today"
 			}
 
-			entries, err := r().FindAllTimeEntries(d)
+			start, end, dateOutput, err := util.ParseHumanDate(input, time.Now())
+			if err != nil {
+				return err
+			}
+
+			entries, err := r().FindTimeEntriesInRange(start, end)
 			if err != nil {
 				return err
 			}
@@ -134,7 +141,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&flagDate, "date", "d", "", "List time entries created on a specific date (YYYY-MM-DD)")
+	cmd.Flags().StringVarP(&flagDate, "date", "d", "", "Date to list entries for (YYYY-MM-DD or 'today', 'yesterday', 'last week', 'this week', 'last month', 'this month')")
 	cmd.Flags().StringVarP(&flagOutput, "output", "o", flagOutput, "Output format (table,wide).")
 
 	return cmd

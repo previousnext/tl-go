@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
@@ -56,8 +55,3 @@ func (r *Repository) openDB() *gorm.DB {
 	return db
 }
 
-func getStartAndEndOfDay(date time.Time) (time.Time, time.Time) {
-	startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
-	endOfDay := time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, date.Location())
-	return startOfDay, endOfDay
-}

@@ -7,6 +7,7 @@ require (
 	github.com/aquasecurity/table v1.11.0
 	github.com/charmbracelet/fang v1.0.0
 	github.com/glebarez/sqlite v1.11.0
+	github.com/jinzhu/now v1.1.5
 	github.com/jwalton/gchalk v1.3.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
@@ -35,7 +36,6 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jwalton/go-supportscolor v1.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
