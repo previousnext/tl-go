@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/previousnext/tl-go/cmd/add"
+	"github.com/previousnext/tl-go/cmd/aits"
 	"github.com/previousnext/tl-go/cmd/alias"
 	"github.com/previousnext/tl-go/cmd/delete"
 	"github.com/previousnext/tl-go/cmd/edit"
@@ -127,6 +128,7 @@ func init() {
 	}
 
 	rootCmd.AddCommand(add.NewCommand(timeEntriesFunc, syncFunc, issueStorageFunc))
+	rootCmd.AddCommand(aits.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(alias.NewCommand())
 	rootCmd.AddCommand(delete.NewCommand(timeEntriesFunc))
 	rootCmd.AddCommand(edit.NewCommand(timeEntriesFunc))

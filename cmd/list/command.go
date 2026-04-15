@@ -74,6 +74,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				"Issue",
 				"Cat",
 				"Time",
+				"AI Saved",
 				"Description",
 				"Sent",
 			}
@@ -101,6 +102,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 					entry.IssueKey, // Only show plain issue key in table
 					util.AbbreviateProjectCategory(categoryName),
 					model.FormatDuration(entry.Duration),
+					model.FormatDuration(entry.AISavedDuration),
 					entry.Description,
 					util.FormatBool(entry.Sent),
 				}
@@ -116,6 +118,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				"",
 				util.ApplyHeaderFormatting("Total"),
 				util.ApplyHeaderFormatting(model.FormatDuration(totalDuration)),
+				"",
 			}
 
 			t.SetFooters(footer...)
@@ -125,6 +128,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				table.AlignLeft,
 				table.AlignLeft,
 				table.AlignRight,
+				table.AlignLeft,
 				table.AlignRight,
 				table.AlignLeft,
 				table.AlignLeft,

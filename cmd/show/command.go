@@ -46,6 +46,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				{"Summary", entry.Issue.Summary},
 				{"Project", entry.Issue.Project.Name},
 				{"Duration", model.FormatDuration(entry.Duration)},
+				{"AI Time Saved", model.FormatDuration(entry.AISavedDuration)},
 				{"Description", entry.Description},
 				{"Created At", model.FormatDateTime(entry.CreatedAt)},
 				{"Updated At", model.FormatDateTime(entry.UpdatedAt)},

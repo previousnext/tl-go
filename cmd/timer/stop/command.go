@@ -3,6 +3,7 @@ package stop
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -11,7 +12,9 @@ import (
 )
 
 func NewCommand(timerService func() service.TimerEntryServiceInterface) *cobra.Command {
-	return &cobra.Command{
+	var aiTimeSavedStr string
+
+	cmd := &cobra.Command{
 		Use:   "stop [timer-id]",
 		Short: "Stop tracking time and save entry",
 		Args:  cobra.RangeArgs(0, 1),
@@ -26,7 +29,17 @@ func NewCommand(timerService func() service.TimerEntryServiceInterface) *cobra.C
 				id := uint(parsed)
 				timerID = &id
 			}
-			entry, err := timerService().StopTimeEntry(timerID)
+
+			var stopOpts []service.StopOptions
+			if aiTimeSavedStr != "" {
+				aiDur, err := time.ParseDuration(aiTimeSavedStr)
+				if err != nil {
+					return fmt.Errorf("invalid AI time saved duration: %s", aiTimeSavedStr)
+				}
+				stopOpts = append(stopOpts, service.StopOptions{AISavedDuration: aiDur})
+			}
+
+			entry, err := timerService().StopTimeEntry(timerID, stopOpts...)
 			if err != nil {
 				return err
 			}
@@ -34,4 +47,10 @@ func NewCommand(timerService func() service.TimerEntryServiceInterface) *cobra.C
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVarP(&aiTimeSavedStr, "ai-time-saved", "a", "", "Duration of time saved by AI (e.g. 1h, 30m)")
+	cmd.Flags().StringVar(&aiTimeSavedStr, "aits", "", "Duration of time saved by AI (shorthand for --ai-time-saved)")
+	_ = cmd.Flags().MarkHidden("aits")
+
+	return cmd
 }

@@ -45,6 +45,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				"Date",
 				"Issue",
 				"Time",
+				"AI Saved",
 				"Description",
 			}
 			if flagOutput == "wide" {
@@ -60,6 +61,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 					entry.CreatedAt.Format(time.DateOnly),
 					entry.IssueKey,
 					model.FormatDuration(entry.Duration),
+					model.FormatDuration(entry.AISavedDuration),
 					entry.Description,
 				}
 				if flagOutput == "wide" {
@@ -75,6 +77,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				util.ApplyHeaderFormatting("Total"),
 				util.ApplyHeaderFormatting(model.FormatDuration(totalDuration)),
 				"",
+				"",
 			}
 			if flagOutput == "wide" {
 				footer = append(footer, "", "")
@@ -85,7 +88,7 @@ func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
 				return fmt.Errorf("error printing table: %w", err)
 			}
 			util.PrintIssueLinks(cmd.OutOrStdout(), entries)
-			
+
 			return nil
 		},
 	}
