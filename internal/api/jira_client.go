@@ -18,6 +18,9 @@ type JiraClientInterface interface {
 	AddWorkLog(worklog types.WorklogRecord) error
 	FetchIssue(issueKey string) (IssueResponse, error)
 	BulkFetchIssues(issueKeys []string) (BulkFetchIssuesResponse, error)
+	GetUpdatedWorklogIDs(sinceMillis int64) ([]types.WorklogChange, error)
+	BulkGetWorklogs(ids []int64) ([]types.Worklog, error)
+	GetWorklogProperty(issueID string, worklogID string, propertyKey string) (*types.EntityPropertyResponse, error)
 }
 
 type HttpClientInterface interface {

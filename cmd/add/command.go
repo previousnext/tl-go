@@ -16,8 +16,14 @@ var (
 	cmdLong    = `Add a time entry`
 	cmdExample = `
   # Add 2 hours to a project a project with issue ID PNX-123
-  tl add PNX-123 2h "Worked on feature X"`
-	date time.Time
+  tl add PNX-123 2h "Worked on feature X"
+
+  # Add 2 hours and indicate 1 hour was saved by AI
+  tl add PNX-123 2h "Worked on feature X" --ai-time-saved 1h
+  tl add PNX-123 2h "Worked on feature X" --aits 1h
+  tl add PNX-123 2h "Worked on feature X" -a 1h`
+	date           time.Time
+	aiTimeSavedStr string
 )
 
 func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface, i func() db.IssueStorageInterface) *cobra.Command {
@@ -84,6 +90,13 @@ func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface
 			if len(args) > 2 {
 				entry.Description = args[2]
 			}
+			if aiTimeSavedStr != "" {
+				aiDur, err := time.ParseDuration(aiTimeSavedStr)
+				if err != nil {
+					return fmt.Errorf("invalid AI time saved duration: %s", aiTimeSavedStr)
+				}
+				entry.AISavedDuration = aiDur
+			}
 			entry.CreatedAt = date
 
 			err = r().CreateTimeEntry(entry)
@@ -101,6 +114,9 @@ func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface
 		time.DateOnly,
 	}
 	cmd.Flags().TimeVarP(&date, "date", "d", time.Now(), timeFormats, "Date for the entry.")
+	cmd.Flags().StringVarP(&aiTimeSavedStr, "ai-time-saved", "a", "", "Duration of time saved by AI (e.g. 1h, 30m)")
+	cmd.Flags().StringVar(&aiTimeSavedStr, "aits", "", "Duration of time saved by AI (shorthand for --ai-time-saved)")
+	_ = cmd.Flags().MarkHidden("aits")
 
 	return cmd
 }

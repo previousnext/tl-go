@@ -47,10 +47,11 @@ func NewCommand(r func() db.TimeEntriesInterface, j func() api.JiraClientInterfa
 				}
 
 				worklog := types.WorklogRecord{
-					IssueKey: timeEntry.IssueKey,
-					Started:  timeEntry.CreatedAt,
-					Duration: timeEntry.Duration,
-					Comment:  timeEntry.Description,
+					IssueKey:        timeEntry.IssueKey,
+					Started:         timeEntry.CreatedAt,
+					Duration:        timeEntry.Duration,
+					Comment:         timeEntry.Description,
+					AISavedDuration: timeEntry.AISavedDuration,
 				}
 				err = jiraClient.AddWorkLog(worklog)
 				if err != nil {
@@ -81,10 +82,11 @@ func NewCommand(r func() db.TimeEntriesInterface, j func() api.JiraClientInterfa
 
 			for _, timeEntry := range unsentEntries {
 				worklog := types.WorklogRecord{
-					IssueKey: timeEntry.IssueKey,
-					Started:  timeEntry.CreatedAt,
-					Duration: timeEntry.Duration,
-					Comment:  timeEntry.Description,
+					IssueKey:        timeEntry.IssueKey,
+					Started:         timeEntry.CreatedAt,
+					Duration:        timeEntry.Duration,
+					Comment:         timeEntry.Description,
+					AISavedDuration: timeEntry.AISavedDuration,
 				}
 				err := jiraClient.AddWorkLog(worklog)
 				if err != nil {

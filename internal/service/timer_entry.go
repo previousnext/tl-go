@@ -10,11 +10,16 @@ import (
 	"github.com/previousnext/tl-go/internal/model"
 )
 
+// StopOptions holds optional parameters for stopping a timer entry.
+type StopOptions struct {
+	AISavedDuration time.Duration
+}
+
 type TimerEntryServiceInterface interface {
 	StartTimeEntry(issueKey string, description *string) error
 	PauseTimeEntry() error
 	ResumeTimerEntry(id *uint) error
-	StopTimeEntry(id *uint) (*model.TimeEntry, error)
+	StopTimeEntry(id *uint, opts ...StopOptions) (*model.TimeEntry, error)
 	GetTimerEntry() (*model.TimerEntry, error)
 	GetTimerEntryByID(id uint) (*model.TimerEntry, error)
 	SaveTimerEntry(entry *model.TimerEntry) error
@@ -123,7 +128,7 @@ func (s *TimerEntryService) ResumeTimerEntry(id *uint) error {
 	return s.timerEntryStorage.SaveTimerEntry(entry)
 }
 
-func (s *TimerEntryService) StopTimeEntry(id *uint) (*model.TimeEntry, error) {
+func (s *TimerEntryService) StopTimeEntry(id *uint, opts ...StopOptions) (*model.TimeEntry, error) {
 	now := s.now()
 	var entry *model.TimerEntry
 	if id != nil {
@@ -183,6 +188,9 @@ func (s *TimerEntryService) StopTimeEntry(id *uint) (*model.TimeEntry, error) {
 		Duration:    dur,
 		Description: description,
 		Sent:        false,
+	}
+	if len(opts) > 0 {
+		timeEntry.AISavedDuration = opts[0].AISavedDuration
 	}
 	if err := s.timeEntryStorage.CreateTimeEntry(timeEntry); err != nil {
 		return nil, err

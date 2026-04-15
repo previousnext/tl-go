@@ -10,12 +10,13 @@ import (
 
 type TimeEntry struct {
 	gorm.Model
-	IssueKey    string        `gorm:"index"`
-	IssueID     uint          `gorm:"index"`
-	Issue       *Issue        `gorm:"foreignkey:IssueID"`
-	Duration    time.Duration // Duration in minutes
-	Description string
-	Sent        bool
+	IssueKey        string        `gorm:"index"`
+	IssueID         uint          `gorm:"index"`
+	Issue           *Issue        `gorm:"foreignkey:IssueID"`
+	Duration        time.Duration // Duration in minutes
+	AISavedDuration time.Duration // Duration of time saved by AI
+	Description     string
+	Sent            bool
 }
 
 func FormatDuration(dur time.Duration) string {
