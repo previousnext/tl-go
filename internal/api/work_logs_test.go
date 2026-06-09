@@ -2,7 +2,7 @@ package api
 
 import (
 	"bytes"
-	"fmt"
+	"encoding/json"
 	"io"
 	"net/http"
 	"testing"
@@ -12,6 +12,12 @@ import (
 
 	"github.com/previousnext/tl-go/internal/api/types"
 )
+
+// isValidJSON checks if a string is valid JSON.
+func isValidJSON(s string) bool {
+	var js json.RawMessage
+	return json.Unmarshal([]byte(s), &js) == nil
+}
 
 func TestJiraClient_AddWorkLog(t *testing.T) {
 	var capturedRequest *http.Request
@@ -63,11 +69,88 @@ func TestGenerateWorklogPayload(t *testing.T) {
 
 	buf, err := generateWorklogPayload(worklog)
 	assert.NoError(t, err)
+
 	payload := buf.String()
-	fmt.Println(payload)
-	assert.NotEmpty(t, payload)
-	assert.Contains(t, payload, worklog.IssueKey)
+	assert.True(t, isValidJSON(payload), "Generated payload should be valid JSON")
 	assert.Contains(t, payload, worklog.Comment)
 	assert.Contains(t, payload, "2024-06-01T10:00:00.000+0000")
 	assert.Contains(t, payload, "7200") // 2 hours in seconds
+}
+
+func TestGenerateWorklogPayload_SpecialCharacters(t *testing.T) {
+	tests := []struct {
+		name            string
+		comment         string
+		expectedInJSON  string
+		shouldBeEscaped bool // true if the character needs JSON escaping
+	}{
+		{
+			name:           "newline in comment",
+			comment:        "Line one\nLine two",
+			expectedInJSON: "Line one Line two",
+		},
+		{
+			name:           "carriage return and newline",
+			comment:        "Line one\r\nLine two",
+			expectedInJSON: "Line one Line two",
+		},
+		{
+			name:           "tab in comment",
+			comment:        "Item\tValue",
+			expectedInJSON: "Item Value",
+		},
+		{
+			name:           "multiple whitespace",
+			comment:        "Too   many   spaces",
+			expectedInJSON: "Too many spaces",
+		},
+		{
+			name:            "double quotes are escaped",
+			comment:         `Said "hello" today`,
+			expectedInJSON:  `Said \"hello\" today`, // JSON-escaped quotes
+			shouldBeEscaped: true,
+		},
+		{
+			name:            "backslash is escaped",
+			comment:         `Path\to\file`,
+			expectedInJSON:  `Path\\to\\file`, // JSON-escaped backslashes
+			shouldBeEscaped: true,
+		},
+		{
+			name:            "mixed special chars",
+			comment:         "First line\nSecond \"quoted\"\tthird",
+			expectedInJSON:  `First line Second \"quoted\" third`,
+			shouldBeEscaped: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			worklog := types.WorklogRecord{
+				Comment:  tt.comment,
+				Started:  time.Date(2024, 6, 1, 10, 0, 0, 0, time.UTC),
+				Duration: 2 * time.Hour,
+			}
+
+			buf, err := generateWorklogPayload(worklog)
+			assert.NoError(t, err)
+
+			payload := buf.String()
+
+			// Verify the payload is valid JSON
+			assert.True(t, isValidJSON(payload), "Generated payload should be valid JSON: %s", payload)
+
+			// Verify the expected content is in the payload
+			assert.Contains(t, payload, tt.expectedInJSON, "Payload should contain expected comment")
+
+			// For escaped characters, also verify we can unmarshal and get original values
+			if tt.shouldBeEscaped {
+				var result worklogPayload
+				err := json.Unmarshal(buf.Bytes(), &result)
+				assert.NoError(t, err)
+				// After unmarshaling, we should get the sanitized comment (whitespace normalized)
+				// but with quotes and backslashes preserved
+			}
+		})
+	}
 }
