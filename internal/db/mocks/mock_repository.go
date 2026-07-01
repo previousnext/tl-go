@@ -11,12 +11,13 @@ import (
 type MockRepository struct {
 	db.TimeEntriesInterface
 	db.IssueStorageInterface
-	Entries                    []*model.TimeEntry
-	FindTimeEntriesInRangeFunc func(start, end time.Time) ([]*model.TimeEntry, error)
-	FindUnsentTimeEntriesFunc    func() ([]*model.TimeEntry, error)
-	FindTimeEntryFunc            func(id uint) (*model.TimeEntry, error)
-	UpdateTimeEntryFunc          func(entry *model.TimeEntry) error
-	GetSummaryByCategoryFunc     func(start, end time.Time) ([]db.CategorySummary, error)
+	Entries                                     []*model.TimeEntry
+	FindTimeEntriesInRangeFunc                  func(start, end time.Time) ([]*model.TimeEntry, error)
+	FindUnsentTimeEntriesFunc                   func() ([]*model.TimeEntry, error)
+	FindUnsentTimeEntriesWithoutDescriptionFunc func() ([]*model.TimeEntry, error)
+	FindTimeEntryFunc                           func(id uint) (*model.TimeEntry, error)
+	UpdateTimeEntryFunc                         func(entry *model.TimeEntry) error
+	GetSummaryByCategoryFunc                    func(start, end time.Time) ([]db.CategorySummary, error)
 }
 
 var _ db.IssueStorageInterface = (*MockRepository)(nil)
@@ -61,6 +62,13 @@ func (m *MockRepository) DeleteTimeEntry(id uint) error {
 func (m *MockRepository) FindUnsentTimeEntries() ([]*model.TimeEntry, error) {
 	if m.FindUnsentTimeEntriesFunc != nil {
 		return m.FindUnsentTimeEntriesFunc()
+	}
+	return nil, nil
+}
+
+func (m *MockRepository) FindUnsentTimeEntriesWithoutDescription() ([]*model.TimeEntry, error) {
+	if m.FindUnsentTimeEntriesWithoutDescriptionFunc != nil {
+		return m.FindUnsentTimeEntriesWithoutDescriptionFunc()
 	}
 	return nil, nil
 }
