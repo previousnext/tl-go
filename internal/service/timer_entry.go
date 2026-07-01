@@ -19,6 +19,7 @@ type TimerEntryServiceInterface interface {
 	GetTimerEntryByID(id uint) (*model.TimerEntry, error)
 	SaveTimerEntry(entry *model.TimerEntry) error
 	FindAllTimerEntries() ([]*model.TimerEntry, error)
+	DeleteTimerEntry(id uint) (*model.TimerEntry, error)
 }
 
 type TimerEntryService struct {
@@ -207,6 +208,22 @@ func (s *TimerEntryService) SaveTimerEntry(entry *model.TimerEntry) error {
 
 func (s *TimerEntryService) FindAllTimerEntries() ([]*model.TimerEntry, error) {
 	return s.timerEntryStorage.FindAllTimerEntries()
+}
+
+// DeleteTimerEntry removes a timer entry by ID without saving it as a time
+// entry. It returns the deleted entry so callers can report what was removed.
+func (s *TimerEntryService) DeleteTimerEntry(id uint) (*model.TimerEntry, error) {
+	entry, err := s.timerEntryStorage.FindTimerEntryByID(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("timer entry not found")
+		}
+		return nil, err
+	}
+	if err := s.timerEntryStorage.DeleteTimerEntry(entry); err != nil {
+		return nil, err
+	}
+	return entry, nil
 }
 
 func roundUpToQuarterHour(dur time.Duration) time.Duration {

@@ -227,3 +227,35 @@ func TestTimerEntryService_OnlyOneActiveTimer(t *testing.T) {
 	assert.Equal(t, "PNX-222", mockTimer.entry.IssueKey)
 	assert.False(t, mockTimer.entry.Paused)
 }
+
+func TestTimerEntryService_DeleteTimerEntry(t *testing.T) {
+	mockTimer := &mockTimerEntryStorage{
+		entry: &model.TimerEntry{
+			ID:       42,
+			IssueKey: "PNX-999",
+		},
+	}
+	mockTimeEntries := &mockTimeEntriesStorage{}
+	syncService := &mockSyncService{}
+	service := NewTimerEntryService(mockTimer, mockTimeEntries, syncService)
+
+	entry, err := service.DeleteTimerEntry(42)
+	assert.NoError(t, err)
+	assert.NotNil(t, entry)
+	assert.Equal(t, "PNX-999", entry.IssueKey)
+	assert.True(t, mockTimer.deleted)
+	assert.Nil(t, mockTimeEntries.created)
+}
+
+func TestTimerEntryService_DeleteTimerEntry_NotFound(t *testing.T) {
+	mockTimer := &mockTimerEntryStorage{entry: nil}
+	mockTimeEntries := &mockTimeEntriesStorage{}
+	syncService := &mockSyncService{}
+	service := NewTimerEntryService(mockTimer, mockTimeEntries, syncService)
+
+	entry, err := service.DeleteTimerEntry(123)
+	assert.Nil(t, entry)
+	assert.Error(t, err)
+	assert.Equal(t, "timer entry not found", err.Error())
+	assert.False(t, mockTimer.deleted)
+}
