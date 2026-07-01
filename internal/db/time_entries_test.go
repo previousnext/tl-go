@@ -54,6 +54,7 @@ func TestGetSummaryByCategory(t *testing.T) {
 			CreatedAt: time.Now(),
 		},
 		IssueKey:    "TEST-1",
+		IssueID:     issue.ID,
 		Duration:    2 * time.Hour,
 		Description: "Work 1",
 	}
@@ -64,6 +65,7 @@ func TestGetSummaryByCategory(t *testing.T) {
 			CreatedAt: time.Now(),
 		},
 		IssueKey:    "TEST-1",
+		IssueID:     issue.ID,
 		Duration:    3 * time.Hour,
 		Description: "Work 2",
 	}
@@ -120,6 +122,7 @@ func TestGetSummaryByCategory_OutsideDateRange(t *testing.T) {
 			CreatedAt: time.Now().Add(-48 * time.Hour),
 		},
 		IssueKey:    "TEST-1",
+		IssueID:     issue.ID,
 		Duration:    2 * time.Hour,
 		Description: "Work",
 	}
@@ -132,4 +135,81 @@ func TestGetSummaryByCategory_OutsideDateRange(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Len(t, summaries, 0)
+}
+
+func TestGetSummaryByCategory_KeyCaseMismatch(t *testing.T) {
+	repo := setupTestRepo(t)
+
+	category := &model.Category{
+		Name: "Billable",
+	}
+	db := repo.openDB()
+	assert.NoError(t, db.Create(category).Error)
+
+	project := &model.Project{
+		Key:        "TEST",
+		Name:       "Test Project",
+		CategoryID: &category.ID,
+		Category:   category,
+	}
+	assert.NoError(t, db.Create(project).Error)
+
+	issue := &model.Issue{
+		Key:       "TEST-1",
+		Summary:   "Test Issue",
+		ProjectID: project.ID,
+		Project:   *project,
+	}
+	assert.NoError(t, db.Create(issue).Error)
+
+	start := time.Now().Add(-24 * time.Hour)
+	end := time.Now().Add(24 * time.Hour)
+
+	// The stored issue_key casing differs from issues.key, but issue_id links
+	// the entry correctly. The summary should still resolve the category.
+	entry := &model.TimeEntry{
+		Model: gorm.Model{
+			CreatedAt: time.Now(),
+		},
+		IssueKey:    "test-1",
+		IssueID:     issue.ID,
+		Duration:    2 * time.Hour,
+		Description: "Work",
+	}
+	assert.NoError(t, db.Create(entry).Error)
+
+	summaries, err := repo.GetSummaryByCategory(start, end)
+
+	assert.NoError(t, err)
+	assert.Len(t, summaries, 1)
+	assert.Equal(t, "Billable", summaries[0].CategoryName)
+	assert.Equal(t, 2*time.Hour, summaries[0].Duration)
+}
+
+func TestGetSummaryByCategory_OrphanEntryNone(t *testing.T) {
+	repo := setupTestRepo(t)
+
+	db := repo.openDB()
+
+	start := time.Now().Add(-24 * time.Hour)
+	end := time.Now().Add(24 * time.Hour)
+
+	// An entry with no linked issue should roll up under the "None" category
+	// rather than being dropped entirely.
+	entry := &model.TimeEntry{
+		Model: gorm.Model{
+			CreatedAt: time.Now(),
+		},
+		IssueKey:    "GONE-1",
+		Duration:    90 * time.Minute,
+		Description: "Orphan work",
+	}
+	assert.NoError(t, db.Create(entry).Error)
+
+	summaries, err := repo.GetSummaryByCategory(start, end)
+
+	assert.NoError(t, err)
+	assert.Len(t, summaries, 1)
+	assert.Equal(t, "None", summaries[0].CategoryName)
+	assert.Equal(t, 90*time.Minute, summaries[0].Duration)
 }
