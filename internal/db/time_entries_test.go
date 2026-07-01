@@ -172,3 +172,32 @@ func TestGetSummaryByCategory_OrphanEntryNone(t *testing.T) {
 	assert.Equal(t, "None", summaries[0].CategoryName)
 	assert.Equal(t, 90*time.Minute, summaries[0].Duration)
 }
+
+func TestFindUnsentTimeEntriesWithoutDescription(t *testing.T) {
+	repo := setupTestRepo(t)
+	db := repo.openDB()
+
+	// Unsent, no description -> included.
+	createTestEntry(t, db, model.TimeEntry{
+		IssueKey: "TEST-1",
+		Duration: time.Hour,
+	})
+	// Unsent, with description -> excluded.
+	createTestEntry(t, db, model.TimeEntry{
+		IssueKey:    "TEST-2",
+		Duration:    time.Hour,
+		Description: "Already commented",
+	})
+	// Sent, no description -> excluded.
+	createTestEntry(t, db, model.TimeEntry{
+		IssueKey: "TEST-3",
+		Duration: time.Hour,
+		Sent:     true,
+	})
+
+	entries, err := repo.FindUnsentTimeEntriesWithoutDescription()
+
+	assert.NoError(t, err)
+	assert.Len(t, entries, 1)
+	assert.Equal(t, "TEST-1", entries[0].IssueKey)
+}

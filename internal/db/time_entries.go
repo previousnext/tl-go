@@ -11,6 +11,7 @@ type TimeEntriesInterface interface {
 	FindTimeEntry(id uint) (*model.TimeEntry, error)
 	FindTimeEntriesInRange(start, end time.Time) ([]*model.TimeEntry, error)
 	FindUnsentTimeEntries() ([]*model.TimeEntry, error)
+	FindUnsentTimeEntriesWithoutDescription() ([]*model.TimeEntry, error)
 	FindUniqueIssueKeys() ([]string, error)
 	UpdateTimeEntry(entry *model.TimeEntry) error
 	DeleteTimeEntry(id uint) error
@@ -53,6 +54,18 @@ func (r *Repository) FindUnsentTimeEntries() ([]*model.TimeEntry, error) {
 	db := r.openDB()
 	var entries []*model.TimeEntry
 	if err := db.Preload("Issue.Project.Category").Where("sent = ?", false).Find(&entries).Error; err != nil {
+		return nil, err
+	}
+	return entries, nil
+}
+
+func (r *Repository) FindUnsentTimeEntriesWithoutDescription() ([]*model.TimeEntry, error) {
+	db := r.openDB()
+	var entries []*model.TimeEntry
+	if err := db.Preload("Issue.Project.Category").
+		Where("sent = ? AND description = ?", false, "").
+		Order("created_at").
+		Find(&entries).Error; err != nil {
 		return nil, err
 	}
 	return entries, nil
