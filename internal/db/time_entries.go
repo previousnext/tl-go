@@ -85,8 +85,8 @@ func (r *Repository) GetSummaryByCategory(start time.Time, end time.Time) ([]Cat
 	}
 	if err := db.Model(&model.TimeEntry{}).
 		Select("COALESCE(categories.name, 'None') as category_name, SUM(duration) as duration").
-		Joins("JOIN issues ON time_entries.issue_key = issues.key").
-		Joins("JOIN projects ON issues.project_id = projects.id").
+		Joins("LEFT JOIN issues ON time_entries.issue_id = issues.id").
+		Joins("LEFT JOIN projects ON issues.project_id = projects.id").
 		Joins("LEFT JOIN categories ON projects.category_id = categories.id").
 		Where("time_entries.created_at BETWEEN ? AND ?", start, end).
 		Group("category_name").
