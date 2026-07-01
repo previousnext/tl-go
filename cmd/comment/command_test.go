@@ -17,12 +17,7 @@ func newRepoFunc(m *mocks.MockRepository) func() db.TimeEntriesInterface {
 	return func() db.TimeEntriesInterface { return m }
 }
 
-func resetFlags() {
-	flagDate = ""
-}
-
 func TestComment_UpdatesEntries(t *testing.T) {
-	resetFlags()
 	updated := map[uint]string{}
 	e1 := &model.TimeEntry{IssueKey: "PNX-1", Duration: time.Hour}
 	e1.ID = 1
@@ -51,7 +46,6 @@ func TestComment_UpdatesEntries(t *testing.T) {
 }
 
 func TestComment_EmptyLineSkips(t *testing.T) {
-	resetFlags()
 	updates := 0
 	mock := &mocks.MockRepository{
 		FindUnsentTimeEntriesWithoutDescriptionFunc: func() ([]*model.TimeEntry, error) {
@@ -78,7 +72,6 @@ func TestComment_EmptyLineSkips(t *testing.T) {
 }
 
 func TestComment_QuitStops(t *testing.T) {
-	resetFlags()
 	updates := 0
 	mock := &mocks.MockRepository{
 		FindUnsentTimeEntriesWithoutDescriptionFunc: func() ([]*model.TimeEntry, error) {
@@ -105,7 +98,6 @@ func TestComment_QuitStops(t *testing.T) {
 }
 
 func TestComment_NoCandidates(t *testing.T) {
-	resetFlags()
 	mock := &mocks.MockRepository{
 		FindUnsentTimeEntriesWithoutDescriptionFunc: func() ([]*model.TimeEntry, error) {
 			return nil, nil
@@ -123,7 +115,6 @@ func TestComment_NoCandidates(t *testing.T) {
 }
 
 func TestComment_DateFiltersOutOfRange(t *testing.T) {
-	resetFlags()
 	updates := 0
 	inRange := time.Now()
 	outOfRange := time.Now().AddDate(0, 0, -30)

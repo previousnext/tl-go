@@ -25,10 +25,11 @@ Press Enter to skip an entry, or type "q" to stop.`
 
   # Only comment entries from today
   tl comment --date today`
-	flagDate = ""
 )
 
 func NewCommand(r func() db.TimeEntriesInterface) *cobra.Command {
+	var flagDate string
+
 	cmd := &cobra.Command{
 		Use:                   "comment",
 		Args:                  cobra.NoArgs,
