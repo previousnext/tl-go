@@ -26,7 +26,7 @@ func TestAdd(t *testing.T) {
 	err := cmd.Execute()
 	assert.NoError(t, err)
 	output := buf.String()
-	assert.Contains(t, output, "Added time entry: ID=42")
+	assert.Contains(t, output, "Added time entry: ID=42\n")
 }
 
 func TestAdd_InvalidDuration_ReturnsError(t *testing.T) {
@@ -59,5 +59,5 @@ func TestAdd_NoDescription(t *testing.T) {
 	err := cmd.Execute()
 	assert.NoError(t, err)
 	output := buf.String()
-	assert.Contains(t, output, "Added time entry: ID=42")
+	assert.Contains(t, output, "Added time entry: ID=42\n")
 }

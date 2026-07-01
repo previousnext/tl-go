@@ -91,7 +91,7 @@ func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface
 				return err
 			}
 
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Added time entry: ID=%d,", entry.ID)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Added time entry: ID=%d\n", entry.ID)
 
 			return nil
 		},
