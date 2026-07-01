@@ -37,7 +37,7 @@ func TestTimerDelete_ConfirmDeletes(t *testing.T) {
 	err := cmd.Execute()
 	assert.NoError(t, err)
 	assert.Equal(t, uint(3), deletedID)
-	assert.Contains(t, buf.String(), "Deleted timer entry 3 for PNX-123.")
+	assert.Contains(t, buf.String(), "Timer entry has been deleted.")
 }
 
 func TestTimerDelete_DeclineAborts(t *testing.T) {
@@ -83,7 +83,7 @@ func TestTimerDelete_ForceSkipsPrompt(t *testing.T) {
 	assert.NoError(t, err)
 	out := buf.String()
 	assert.NotContains(t, out, "[y/N]")
-	assert.Contains(t, out, "Deleted timer entry 3 for PNX-123.")
+	assert.Contains(t, out, "Timer entry has been deleted.")
 }
 
 func TestTimerDelete_InvalidID(t *testing.T) {

@@ -60,11 +60,10 @@ func NewCommand(timerService func() service.TimerEntryServiceInterface) *cobra.C
 				}
 			}
 
-			deleted, err := timerService().DeleteTimerEntry(id)
-			if err != nil {
+			if _, err := timerService().DeleteTimerEntry(id); err != nil {
 				return err
 			}
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Deleted timer entry %d for %s.\n", deleted.ID, deleted.IssueKey)
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), "Timer entry has been deleted.")
 			return nil
 		},
 	}
