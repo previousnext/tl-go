@@ -27,6 +27,9 @@ archives:
     wrap_in_directory: true
     formats: tar.gz
 
+changelog:
+  use: github-native
+
 release:
   prerelease: auto
   name_template: "TL {{.Version}}"
