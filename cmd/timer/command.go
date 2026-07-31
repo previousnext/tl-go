@@ -15,9 +15,10 @@ import (
 
 func NewCommand(timerService func() service.TimerEntryServiceInterface, issueStorage func() db.IssueStorageInterface) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "timer",
-		Short: "Start, stop, pause, resume, and list timer entries.",
-		Long:  "Start, stop, pause, resume, and list timer entries. This is used to track time spent on an issue in real-time.",
+		Use:     "timer",
+		Aliases: []string{"t"},
+		Short:   "Start, stop, pause, resume, and list timer entries.",
+		Long:    "Start, stop, pause, resume, and list timer entries. This is used to track time spent on an issue in real-time.",
 	}
 
 	cmd.AddCommand(startcmd.NewCommand(timerService, issueStorage))
