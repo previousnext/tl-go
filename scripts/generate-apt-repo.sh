@@ -15,13 +15,24 @@ main() {
   COMPONENT_DIR="${SUITE_DIR}/${COMPONENTS:-main}"
 
   echo "Generating Packages files"
+  # dpkg-scanpackages' --arch flag matches *_<arch>.deb filenames, not the
+  # package's actual Architecture: field, and nfpm names amd64 packages with a
+  # goamd64 suffix (e.g. tl_1.0.0_linux_amd64v3.deb) that doesn't match that
+  # pattern. Scan once with no filter (which does read the real Architecture:
+  # field) and split the output ourselves.
+  ALL_PACKAGES="$(mktemp)"
+  dpkg-scanpackages --multiversion pool/ > "${ALL_PACKAGES}"
+
   for ARCH in "${ARCHS[@]}"; do
     PACKAGE_DIR="${COMPONENT_DIR}/binary-${ARCH}"
     mkdir -p "${PACKAGE_DIR}"
-    dpkg-scanpackages --multiversion --arch "${ARCH}" pool/ > "${PACKAGE_DIR}/Packages"
+    awk -v RS="" -v ORS="\n\n" -v arch="${ARCH}" '
+      $0 ~ ("(^|\n)Architecture: " arch "(\n|$)") { print }
+    ' "${ALL_PACKAGES}" > "${PACKAGE_DIR}/Packages"
     gzip -fk "${PACKAGE_DIR}/Packages"
     bzip2 -fk "${PACKAGE_DIR}/Packages"
   done
+  rm -f "${ALL_PACKAGES}"
 
   pushd "${SUITE_DIR}" >/dev/null
   echo "Making Release file"
