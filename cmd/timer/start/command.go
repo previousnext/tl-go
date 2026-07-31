@@ -1,12 +1,14 @@
 package start
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/previousnext/tl-go/internal/alias"
 	"github.com/previousnext/tl-go/internal/db"
+	"github.com/previousnext/tl-go/internal/model"
 	"github.com/previousnext/tl-go/internal/service"
 	"github.com/previousnext/tl-go/internal/util"
 )
@@ -30,7 +32,15 @@ func NewCommand(timerService func() service.TimerEntryServiceInterface, issueSto
 				desc := strings.Join(args[1:], " ")
 				description = &desc
 			}
-			return timerService().StartTimeEntry(issueKey, description)
+			prev, err := timerService().StartTimeEntry(issueKey, description)
+			if err != nil {
+				return err
+			}
+			if prev != nil {
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Paused time entry for %s, duration: %s\n", prev.IssueKey, model.FormatDuration(prev.Duration))
+			}
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Started time entry for %s\n", issueKey)
+			return nil
 		},
 	}
 }
