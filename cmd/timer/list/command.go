@@ -42,7 +42,7 @@ func NewCommand(timerService func() service.TimerEntryServiceInterface) *cobra.C
 				"Issue",
 				"Started",
 				"Duration",
-				"Paused",
+				"Status",
 				"Description",
 			}
 
@@ -64,12 +64,17 @@ func NewCommand(timerService func() service.TimerEntryServiceInterface) *cobra.C
 					description = *entry.Description
 				}
 
+				status := "active"
+				if entry.Paused {
+					status = "paused"
+				}
+
 				rows = append(rows, []string{
 					fmt.Sprintf("%d", entry.ID),
 					entry.IssueKey,
 					entry.StartTime.Local().Format("2006-01-02 15:04:05"),
 					model.FormatDuration(dur),
-					fmt.Sprintf("%t", entry.Paused),
+					status,
 					description,
 				})
 				totalDuration += dur
