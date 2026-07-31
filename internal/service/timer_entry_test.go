@@ -16,6 +16,10 @@ type mockTimerEntryStorage struct {
 	entry       *model.TimerEntry
 	pausedEntry *model.TimerEntry
 	deleted     bool
+
+	// other holds a second, independent timer entry so tests can exercise
+	// behaviour that must consider more than one concurrent timer entry.
+	other *model.TimerEntry
 }
 
 func (m *mockTimerEntryStorage) CreateTimerEntry(entry *model.TimerEntry) error {
@@ -29,6 +33,9 @@ func (m *mockTimerEntryStorage) DeleteTimerEntry(entry *model.TimerEntry) error 
 }
 
 func (m *mockTimerEntryStorage) FindLatestActiveTimerEntry() (*model.TimerEntry, error) {
+	if m.other != nil && !m.other.Paused {
+		return m.other, nil
+	}
 	if m.entry == nil || m.entry.Paused {
 		return nil, gorm.ErrRecordNotFound
 	}
@@ -50,6 +57,10 @@ func (m *mockTimerEntryStorage) GetTimerEntry() (*model.TimerEntry, error) {
 }
 
 func (m *mockTimerEntryStorage) SaveTimerEntry(entry *model.TimerEntry) error {
+	if m.other != nil && entry.ID == m.other.ID {
+		m.other = entry
+		return nil
+	}
 	m.pausedEntry = &model.TimerEntry{}
 	*m.pausedEntry = *entry
 	m.entry = entry
@@ -64,6 +75,9 @@ func (m *mockTimerEntryStorage) FindAllTimerEntries() ([]*model.TimerEntry, erro
 }
 
 func (m *mockTimerEntryStorage) FindTimerEntryByID(id uint) (*model.TimerEntry, error) {
+	if m.other != nil && m.other.ID == id {
+		return m.other, nil
+	}
 	if m.entry == nil || m.entry.ID != id {
 		return nil, gorm.ErrRecordNotFound
 	}
@@ -87,9 +101,9 @@ func (m *mockTimeEntriesStorage) FindUnsentTimeEntries() ([]*model.TimeEntry, er
 func (m *mockTimeEntriesStorage) FindUnsentTimeEntriesWithoutDescription() ([]*model.TimeEntry, error) {
 	return nil, nil
 }
-func (m *mockTimeEntriesStorage) FindUniqueIssueKeys() ([]string, error)             { return nil, nil }
-func (m *mockTimeEntriesStorage) UpdateTimeEntry(entry *model.TimeEntry) error       { return nil }
-func (m *mockTimeEntriesStorage) DeleteTimeEntry(id uint) error                      { return nil }
+func (m *mockTimeEntriesStorage) FindUniqueIssueKeys() ([]string, error)       { return nil, nil }
+func (m *mockTimeEntriesStorage) UpdateTimeEntry(entry *model.TimeEntry) error { return nil }
+func (m *mockTimeEntriesStorage) DeleteTimeEntry(id uint) error                { return nil }
 func (m *mockTimeEntriesStorage) GetSummaryByCategory(start time.Time, end time.Time) ([]db.CategorySummary, error) {
 	return nil, nil
 }
@@ -129,7 +143,8 @@ func TestTimerEntryService_TimerWorkflow(t *testing.T) {
 	_, err := service.StartTimeEntry("PNX-123", nil)
 	assert.NoError(t, err)
 	assert.NoError(t, service.PauseTimeEntry())
-	assert.NoError(t, service.ResumeTimerEntry(nil))
+	_, err = service.ResumeTimerEntry(nil)
+	assert.NoError(t, err)
 	timeEntry, err := service.StopTimeEntry(nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, timeEntry)
@@ -271,6 +286,50 @@ func TestTimerEntryService_OnlyOneActiveTimer(t *testing.T) {
 	assert.False(t, mockTimer.entry.Paused)
 	assert.NotNil(t, prev)
 	assert.Equal(t, "PNX-111", prev.IssueKey)
+}
+
+func TestTimerEntryService_ResumeTimerEntry_PausesOtherActiveTimer(t *testing.T) {
+	pauseTime := time.Date(2026, 2, 27, 9, 0, 0, 0, time.Local)
+	activeStart := pauseTime.Add(2 * time.Minute)
+	resumeTime := activeStart.Add(5 * time.Minute)
+	nowTimes := []time.Time{resumeTime}
+	idx := 0
+
+	mockTimer := &mockTimerEntryStorage{
+		entry: &model.TimerEntry{
+			ID:             1,
+			IssueKey:       "PNX-111",
+			Paused:         true,
+			StartTime:      pauseTime,
+			PauseTime:      pauseTime,
+			LastActiveTime: pauseTime,
+		},
+		other: &model.TimerEntry{
+			ID:             2,
+			IssueKey:       "PNX-222",
+			Paused:         false,
+			StartTime:      activeStart,
+			LastActiveTime: activeStart,
+		},
+	}
+	mockTimeEntries := &mockTimeEntriesStorage{}
+	syncService := &mockSyncService{}
+	service := NewTimerEntryService(mockTimer, mockTimeEntries, syncService)
+	service.now = func() time.Time {
+		current := nowTimes[idx]
+		idx++
+		return current
+	}
+
+	id := uint(1)
+	prev, err := service.ResumeTimerEntry(&id)
+	assert.NoError(t, err)
+	assert.NotNil(t, prev)
+	assert.Equal(t, "PNX-222", prev.IssueKey)
+	assert.True(t, mockTimer.other.Paused)
+	assert.Equal(t, 5*time.Minute, mockTimer.other.Duration)
+	assert.False(t, mockTimer.entry.Paused)
+	assert.Equal(t, "PNX-111", mockTimer.entry.IssueKey)
 }
 
 func TestTimerEntryService_DeleteTimerEntry(t *testing.T) {

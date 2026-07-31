@@ -13,7 +13,7 @@ import (
 type TimerEntryServiceInterface interface {
 	StartTimeEntry(issueKey string, description *string) (*model.TimerEntry, error)
 	PauseTimeEntry() error
-	ResumeTimerEntry(id *uint) error
+	ResumeTimerEntry(id *uint) (*model.TimerEntry, error)
 	StopTimeEntry(id *uint) (*model.TimeEntry, error)
 	GetTimerEntry() (*model.TimerEntry, error)
 	GetTimerEntryByID(id uint) (*model.TimerEntry, error)
@@ -97,40 +97,63 @@ func (s *TimerEntryService) PauseTimeEntry() error {
 	return s.timerEntryStorage.SaveTimerEntry(entry)
 }
 
-func (s *TimerEntryService) ResumeTimerEntry(id *uint) error {
+func (s *TimerEntryService) ResumeTimerEntry(id *uint) (*model.TimerEntry, error) {
 	var entry *model.TimerEntry
 	if id != nil {
 		found, err := s.timerEntryStorage.FindTimerEntryByID(*id)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New("timer entry not found")
+				return nil, errors.New("timer entry not found")
 			}
-			return err
+			return nil, err
 		}
 		entry = found
 	} else {
 		found, err := s.timerEntryStorage.FindLatestPausedTimerEntry()
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New("no paused timer entry to resume")
+				return nil, errors.New("no paused timer entry to resume")
 			}
-			return err
+			return nil, err
 		}
 		entry = found
 	}
 	if entry == nil {
-		return errors.New("no paused timer entry to resume")
+		return nil, errors.New("no paused timer entry to resume")
 	}
 	if !entry.Paused {
-		return errors.New("timer entry is not paused")
+		return nil, errors.New("timer entry is not paused")
 	}
 
 	now := s.now()
+
+	var prev *model.TimerEntry
+	active, err := s.timerEntryStorage.FindLatestActiveTimerEntry()
+	if err == nil && active != nil && active.ID != entry.ID {
+		lastActive := active.LastActiveTime
+		if lastActive.IsZero() {
+			lastActive = active.StartTime
+		}
+		active.Duration += now.Sub(lastActive)
+		active.Paused = true
+		active.PauseTime = now
+		active.LastActiveTime = now
+		if err := s.timerEntryStorage.SaveTimerEntry(active); err != nil {
+			return nil, err
+		}
+		prev = active
+	} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
 	entry.Paused = false
 	entry.StartTime = now
 	entry.LastActiveTime = now
 	entry.PauseTime = time.Time{}
-	return s.timerEntryStorage.SaveTimerEntry(entry)
+	if err := s.timerEntryStorage.SaveTimerEntry(entry); err != nil {
+		return nil, err
+	}
+	return prev, nil
 }
 
 func (s *TimerEntryService) StopTimeEntry(id *uint) (*model.TimeEntry, error) {
