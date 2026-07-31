@@ -121,7 +121,8 @@ func TestTimerEntryService_TimerWorkflow(t *testing.T) {
 		return current
 	}
 
-	assert.NoError(t, service.StartTimeEntry("PNX-123", nil))
+	_, err := service.StartTimeEntry("PNX-123", nil)
+	assert.NoError(t, err)
 	assert.NoError(t, service.PauseTimeEntry())
 	assert.NoError(t, service.ResumeTimerEntry(nil))
 	timeEntry, err := service.StopTimeEntry(nil)
@@ -150,7 +151,8 @@ func TestTimerEntryService_StopRoundsToQuarterHour(t *testing.T) {
 		return current
 	}
 
-	assert.NoError(t, service.StartTimeEntry("PNX-456", nil))
+	_, err := service.StartTimeEntry("PNX-456", nil)
+	assert.NoError(t, err)
 	entry, err := service.StopTimeEntry(nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, entry)
@@ -221,14 +223,19 @@ func TestTimerEntryService_OnlyOneActiveTimer(t *testing.T) {
 		return current
 	}
 
-	assert.NoError(t, service.StartTimeEntry("PNX-111", nil))
+	prev, err := service.StartTimeEntry("PNX-111", nil)
+	assert.NoError(t, err)
+	assert.Nil(t, prev)
 	assert.False(t, mockTimer.entry.Paused)
-	assert.NoError(t, service.StartTimeEntry("PNX-222", nil))
+	prev, err = service.StartTimeEntry("PNX-222", nil)
+	assert.NoError(t, err)
 	assert.NotNil(t, mockTimer.pausedEntry)
 	assert.True(t, mockTimer.pausedEntry.Paused)
 	assert.Equal(t, "PNX-111", mockTimer.pausedEntry.IssueKey)
 	assert.Equal(t, "PNX-222", mockTimer.entry.IssueKey)
 	assert.False(t, mockTimer.entry.Paused)
+	assert.NotNil(t, prev)
+	assert.Equal(t, "PNX-111", prev.IssueKey)
 }
 
 func TestTimerEntryService_DeleteTimerEntry(t *testing.T) {

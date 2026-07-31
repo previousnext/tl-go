@@ -11,7 +11,7 @@ import (
 )
 
 type TimerEntryServiceInterface interface {
-	StartTimeEntry(issueKey string, description *string) error
+	StartTimeEntry(issueKey string, description *string) (*model.TimerEntry, error)
 	PauseTimeEntry() error
 	ResumeTimerEntry(id *uint) error
 	StopTimeEntry(id *uint) (*model.TimeEntry, error)
@@ -38,7 +38,7 @@ func NewTimerEntryService(timerEntryStorage db.TimerEntryStorageInterface, timeE
 	}
 }
 
-func (s *TimerEntryService) StartTimeEntry(issueKey string, description *string) error {
+func (s *TimerEntryService) StartTimeEntry(issueKey string, description *string) (*model.TimerEntry, error) {
 	now := s.now()
 	prev, err := s.timerEntryStorage.FindLatestActiveTimerEntry()
 	if err == nil && prev != nil {
@@ -51,10 +51,12 @@ func (s *TimerEntryService) StartTimeEntry(issueKey string, description *string)
 		prev.PauseTime = now
 		prev.LastActiveTime = now
 		if err := s.timerEntryStorage.SaveTimerEntry(prev); err != nil {
-			return err
+			return nil, err
 		}
 	} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
+		return nil, err
+	} else {
+		prev = nil
 	}
 
 	entry := &model.TimerEntry{
@@ -65,7 +67,10 @@ func (s *TimerEntryService) StartTimeEntry(issueKey string, description *string)
 		Duration:       0,
 		Description:    description,
 	}
-	return s.timerEntryStorage.CreateTimerEntry(entry)
+	if err := s.timerEntryStorage.CreateTimerEntry(entry); err != nil {
+		return nil, err
+	}
+	return prev, nil
 }
 
 func (s *TimerEntryService) PauseTimeEntry() error {
