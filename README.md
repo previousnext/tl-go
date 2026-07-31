@@ -60,7 +60,7 @@ COMMANDS
     setup [--flags]                           Setup tl database and configuration
     show <id>                                 Show details of a time entry
     summary [--flags]                         Show a summary of time spent per project category
-    timer [command]                           Start, stop, pause, resume, and list timer entries.
+    timer [command]                           Start, stop, pause, resume, and list timer entries. (alias: t)
 ```
 
 ### Adding bash completion manually
