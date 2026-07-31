@@ -39,6 +39,10 @@ func NewTimerEntryService(timerEntryStorage db.TimerEntryStorageInterface, timeE
 }
 
 func (s *TimerEntryService) StartTimeEntry(issueKey string, description *string) (*model.TimerEntry, error) {
+	if _, err := s.syncService.SyncIssue(issueKey); err != nil {
+		return nil, err
+	}
+
 	now := s.now()
 	prev, err := s.timerEntryStorage.FindLatestActiveTimerEntry()
 	if err == nil && prev != nil {
