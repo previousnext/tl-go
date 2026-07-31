@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/previousnext/tl-go/internal/model"
 	"github.com/previousnext/tl-go/internal/service"
 )
 
@@ -34,10 +35,13 @@ func NewCommand(timerService func() service.TimerEntryServiceInterface) *cobra.C
 				id := uint(parsed)
 				timerID = &id
 			}
-			err := timerService().ResumeTimerEntry(timerID)
+			prev, err := timerService().ResumeTimerEntry(timerID)
 			if err != nil {
 				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "%s\n", err.Error())
 				return err
+			}
+			if prev != nil {
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Paused time entry for %s, duration: %s\n", prev.IssueKey, model.FormatDuration(prev.Duration))
 			}
 			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Timer entry has been resumed.\n")
 			return nil
