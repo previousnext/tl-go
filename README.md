@@ -2,6 +2,22 @@
 
 A command-line tool for logging time to Jira Worklogs.
 
+## Installation
+
+### Debian/Ubuntu (apt)
+
+```
+curl -fsSL https://previousnext.github.io/tl-go/apt/tl.pub | sudo gpg --dearmor -o /usr/share/keyrings/tl-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/tl-archive-keyring.gpg] https://previousnext.github.io/tl-go/apt stable main" | sudo tee /etc/apt/sources.list.d/tl.list
+sudo apt update && sudo apt install tl
+```
+
+Bash completion is installed automatically as part of the package.
+
+### Other platforms
+
+Download the appropriate archive for your OS/architecture from the [releases page](https://github.com/previousnext/tl-go/releases).
+
 ## Setup
 
 You will need your Jira URL, username, and an API token to authenticate with Jira. You can generate an API token from your Atlassian account.
@@ -47,9 +63,9 @@ COMMANDS
     timer [command]                           Start, stop, pause, resume, and list timer entries.
 ```
 
-### Adding bash completion
+### Adding bash completion manually
 
-To enable bash completion for `tl`, you can run the following command on Ubuntu and restart your terminal:
+If you installed `tl` via a method other than the `.deb` package, you can enable bash completion by running the following command and restarting your terminal:
 
 ```
 tl completion bash > ~/.local/share/bash-completion/completions/tl.bash

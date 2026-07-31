@@ -25,3 +25,76 @@ jobs:
           mise release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ⬆️ Upload debs
+        uses: actions/upload-artifact@v4
+        with:
+          name: debs
+          path: dist/*.deb
+
+  release_debs:
+    runs-on: ubuntu-latest
+    needs:
+      - release
+    steps:
+      - name: ⬇️ Checkout Code
+        uses: actions/checkout@v6
+
+      - name: 📁 Make apt repo dirs
+        run: mkdir -p apt-repo/pool/main/tl
+
+      - name: 📦 Restore existing apt repo pool
+        run: |
+          git fetch origin gh-pages --depth=1 2>/dev/null || true
+          if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
+            git worktree add gh-pages-checkout origin/gh-pages
+          else
+            git worktree add --detach gh-pages-checkout
+            git -C gh-pages-checkout checkout --orphan gh-pages
+            git -C gh-pages-checkout rm -rf . > /dev/null
+          fi
+          if [ -d gh-pages-checkout/apt/pool ]; then
+            cp -r gh-pages-checkout/apt/pool/. apt-repo/pool/
+          fi
+
+      - name: ⬇️ Download debs
+        uses: actions/download-artifact@v4
+        with:
+          name: debs
+          path: apt-repo/pool/main/tl
+
+      - name: 🔑 Import GPG Private Key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --import
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          gpgconf --reload gpg-agent
+
+      - name: 📦 Generate Apt Repo
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          cd apt-repo
+          ../scripts/generate-apt-repo.sh
+          cd -
+
+      - name: 🔑 Export Public Key
+        run: |
+          echo "${{ secrets.GPG_PUBLIC_KEY }}" > apt-repo/tl.pub
+
+      - name: 🚀 Publish to GitHub Pages
+        run: |
+          rm -rf gh-pages-checkout/apt
+          mkdir -p gh-pages-checkout/apt
+          cp -r apt-repo/. gh-pages-checkout/apt/
+          cd gh-pages-checkout
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apt
+          if git diff --cached --quiet; then
+            echo "No changes to publish"
+          else
+            git commit -m "Publish apt repo for ${GITHUB_REF_NAME}"
+            git push origin HEAD:gh-pages
+          fi
