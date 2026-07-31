@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -95,9 +96,13 @@ func (m *mockTimeEntriesStorage) GetSummaryByCategory(start time.Time, end time.
 
 type mockSyncService struct {
 	issueID uint
+	err     error
 }
 
 func (m *mockSyncService) SyncIssue(issueKey string, options ...SyncOption) (*model.Issue, error) {
+	if m.err != nil {
+		return nil, m.err
+	}
 	return &model.Issue{Model: gorm.Model{ID: m.issueID}, Key: issueKey}, nil
 }
 
@@ -205,6 +210,36 @@ func TestTimerEntryService_StopByID_NotFound(t *testing.T) {
 	assert.Nil(t, entry)
 	assert.Error(t, err)
 	assert.Equal(t, "timer entry not found", err.Error())
+}
+
+func TestTimerEntryService_StartTimeEntry_UnknownIssue(t *testing.T) {
+	mockTimer := &mockTimerEntryStorage{}
+	mockTimeEntries := &mockTimeEntriesStorage{}
+	syncService := &mockSyncService{err: errors.New("issue with key foo not found in Jira")}
+	service := NewTimerEntryService(mockTimer, mockTimeEntries, syncService)
+
+	_, err := service.StartTimeEntry("foo", nil)
+	assert.Error(t, err)
+	assert.Equal(t, "issue with key foo not found in Jira", err.Error())
+	assert.Nil(t, mockTimer.entry)
+	assert.Nil(t, mockTimer.pausedEntry)
+}
+
+func TestTimerEntryService_StartTimeEntry_UnknownIssue_DoesNotPauseExisting(t *testing.T) {
+	mockTimer := &mockTimerEntryStorage{}
+	mockTimeEntries := &mockTimeEntriesStorage{}
+	syncService := &mockSyncService{issueID: 105}
+	service := NewTimerEntryService(mockTimer, mockTimeEntries, syncService)
+
+	_, err := service.StartTimeEntry("PNX-111", nil)
+	assert.NoError(t, err)
+	assert.False(t, mockTimer.entry.Paused)
+
+	syncService.err = errors.New("issue with key foo not found in Jira")
+	_, err = service.StartTimeEntry("foo", nil)
+	assert.Error(t, err)
+	assert.Equal(t, "PNX-111", mockTimer.entry.IssueKey)
+	assert.False(t, mockTimer.entry.Paused)
 }
 
 func TestTimerEntryService_OnlyOneActiveTimer(t *testing.T) {
