@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 📦 Install Mise
         run: |
@@ -27,7 +27,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: ⬆️ Upload debs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: debs
           path: dist/*.deb
@@ -38,7 +38,7 @@ jobs:
       - release
     steps:
       - name: ⬇️ Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 📁 Make apt repo dirs
         run: mkdir -p apt-repo/pool/main/tl
@@ -58,7 +58,7 @@ jobs:
           fi
 
       - name: ⬇️ Download debs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: debs
           path: apt-repo/pool/main/tl
