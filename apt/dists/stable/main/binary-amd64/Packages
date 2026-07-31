@@ -1,0 +1,30 @@
+Package: tl
+Version: 0.0.17
+Architecture: amd64
+Maintainer: PreviousNext
+Installed-Size: 24059
+Filename: pool/main/tl/tl_0.0.17_linux_amd64v3.deb
+Size: 13286176
+MD5sum: a6fb5bade2c11e73386022ab4a2e6645
+SHA1: d0ed5c9714c3e95e8a6e34ff458038b5d472439d
+SHA256: 63fba2daad1939b909d1cad94867d4237a2027a33de89d3d7b5d663edf455459
+Priority: optional
+Homepage: https://www.previousnext.com.au
+Description: Command line time logger for Jira
+License: GPL-2.0
+
+Package: tl
+Version: 0.0.18
+Architecture: amd64
+Maintainer: PreviousNext
+Installed-Size: 24059
+Filename: pool/main/tl/tl_0.0.18_linux_amd64v3.deb
+Size: 13286172
+MD5sum: 7e6616f2cd5e80a708b929ae93472f9b
+SHA1: 2ddd72c416544dfec4216da522f52558563776bc
+SHA256: 50d3ac01ed202dce9f44496f9a374fc814055da3e3814cda0c13951fd9f7c7f0
+Priority: optional
+Homepage: https://www.previousnext.com.au
+Description: Command line time logger for Jira
+License: GPL-2.0
+
