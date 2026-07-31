@@ -10,6 +10,7 @@ import (
 	"github.com/previousnext/tl-go/internal/db"
 	"github.com/previousnext/tl-go/internal/model"
 	"github.com/previousnext/tl-go/internal/service"
+	"github.com/previousnext/tl-go/internal/util"
 )
 
 var (
@@ -17,7 +18,7 @@ var (
 	cmdExample = `
   # Add 2 hours to a project a project with issue ID PNX-123
   tl add PNX-123 2h "Worked on feature X"`
-	date time.Time
+	dateStr string
 )
 
 func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface, i func() db.IssueStorageInterface) *cobra.Command {
@@ -84,7 +85,16 @@ func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface
 			if len(args) > 2 {
 				entry.Description = args[2]
 			}
-			entry.CreatedAt = date
+
+			if dateStr == "" {
+				entry.CreatedAt = time.Now()
+			} else {
+				start, _, _, err := util.ParseHumanDate(dateStr, time.Now())
+				if err != nil {
+					return err
+				}
+				entry.CreatedAt = start
+			}
 
 			err = r().CreateTimeEntry(entry)
 			if err != nil {
@@ -97,10 +107,7 @@ func NewCommand(r func() db.TimeEntriesInterface, s func() service.SyncInterface
 		},
 	}
 
-	timeFormats := []string{
-		time.DateOnly,
-	}
-	cmd.Flags().TimeVarP(&date, "date", "d", time.Now(), timeFormats, "Date for the entry.")
+	cmd.Flags().StringVarP(&dateStr, "date", "d", "", "Date for the entry (YYYY-MM-DD or a keyword like 'today', 'yesterday', 'last week'). Defaults to now.")
 
 	return cmd
 }
