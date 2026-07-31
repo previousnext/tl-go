@@ -1,0 +1,15 @@
+Package: tl
+Version: 0.0.17
+Architecture: arm64
+Maintainer: PreviousNext
+Installed-Size: 22711
+Filename: pool/main/tl/tl_0.0.17_linux_arm64.deb
+Size: 12332996
+MD5sum: 34cabcf7b768db5fbbef926ec959e81b
+SHA1: 6597be65daed60ef01761d88c532370b617f7967
+SHA256: 6b5d0b08f11af40d0d21624ffb59b0cd2f2fa7c60fdb1ba6c37a3263c275a4ad
+Priority: optional
+Homepage: https://www.previousnext.com.au
+Description: Command line time logger for Jira
+License: GPL-2.0
+
