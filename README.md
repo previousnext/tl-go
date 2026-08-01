@@ -4,6 +4,14 @@ A command-line tool for logging time to Jira Worklogs.
 
 ## Installation
 
+### Homebrew (macOS/Linux)
+
+```
+brew install previousnext/tap/tl
+```
+
+Bash completion and the man page are installed automatically.
+
 ### Debian/Ubuntu (apt)
 
 ```
@@ -65,7 +73,7 @@ COMMANDS
 
 ### Adding bash completion manually
 
-If you installed `tl` via a method other than the `.deb` package, you can enable bash completion by running the following command and restarting your terminal:
+If you installed `tl` via a method other than the `.deb` package or Homebrew, you can enable bash completion by running the following command and restarting your terminal:
 
 ```
 tl completion bash > ~/.local/share/bash-completion/completions/tl.bash
