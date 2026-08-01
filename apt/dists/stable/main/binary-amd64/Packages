@@ -28,3 +28,18 @@ Homepage: https://www.previousnext.com.au
 Description: Command line time logger for Jira
 License: GPL-2.0
 
+Package: tl
+Version: 0.0.20
+Architecture: amd64
+Maintainer: PreviousNext
+Installed-Size: 24059
+Filename: pool/main/tl/tl_0.0.20_linux_amd64v3.deb
+Size: 13286206
+MD5sum: b4b68eadc726b922d047a99940e6c45f
+SHA1: 53743809f8a01b43a972a5dbd8769f16ce184e3a
+SHA256: efa473e523f5c38c8db7865336c2f8b0e09cc3b0dc5b90ac0b27dd7f1614b1eb
+Priority: optional
+Homepage: https://www.previousnext.com.au
+Description: Command line time logger for Jira
+License: GPL-2.0
+
