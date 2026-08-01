@@ -22,7 +22,7 @@ jobs:
 
       - name: 🔑 Generate Homebrew Tap Token
         id: homebrew-tap-token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
           client-id: ${{ secrets.PNX_HOMEBREW_TAP_CLIENT_ID }}
           private-key: ${{ secrets.PNX_HOMEBREW_TAP_PRIVATE_KEY }}
