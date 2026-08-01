@@ -35,7 +35,7 @@ archives:
 homebrew_casks:
   - ids: [ nix ]
     name: tl
-    binary: tl
+    binaries: [ tl ]
     manpages:
       - share/man/man1/tl.1.gz
     completions:
