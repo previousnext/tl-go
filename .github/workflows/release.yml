@@ -20,11 +20,21 @@ jobs:
           curl https://mise.run | sh
           mise install
 
+      - name: 🔑 Generate Homebrew Tap Token
+        id: homebrew-tap-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.PNX_HOMEBREW_TAP_CLIENT_ID }}
+          private-key: ${{ secrets.PNX_HOMEBREW_TAP_PRIVATE_KEY }}
+          owner: previousnext
+          repositories: homebrew-tap
+
       - name: ☁️ Release
         run: |
           mise release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ steps.homebrew-tap-token.outputs.token }}
 
       - name: ⬆️ Upload debs
         uses: actions/upload-artifact@v7

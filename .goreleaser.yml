@@ -26,6 +26,27 @@ archives:
     name_template: '{{ .ProjectName }}_{{ .Version }}_{{ if eq .Os "darwin" }}macOS{{ else }}{{ .Os }}{{ end }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
     wrap_in_directory: true
     formats: tar.gz
+    files:
+      - src: .goreleaser-tmp/completions/tl.bash
+        dst: share/bash-completion/completions/tl
+      - src: .goreleaser-tmp/manpages/*.gz
+        dst: share/man/man1/
+
+homebrew_casks:
+  - ids: [ nix ]
+    name: tl
+    binary: tl
+    manpages:
+      - share/man/man1/tl.1.gz
+    completions:
+      bash: share/bash-completion/completions/tl
+    repository:
+      owner: previousnext
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Casks
+    homepage: https://www.previousnext.com.au
+    description: Command line time logger for Jira
 
 changelog:
   use: github-native
