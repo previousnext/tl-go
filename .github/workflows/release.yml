@@ -75,6 +75,9 @@ jobs:
           name: debs
           path: apt-repo/pool/main/tl
 
+      - name: 🧹 Prune old apt pool versions
+        run: ./scripts/prune-apt-pool.sh apt-repo/pool/main/tl 5
+
       - name: 🔑 Import GPG Private Key
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
