@@ -58,3 +58,18 @@ Homepage: https://www.previousnext.com.au
 Description: Command line time logger for Jira
 Architecture-Variant: amd64v3
 
+Package: tl
+Version: 0.0.22
+Architecture: amd64
+Maintainer: PreviousNext
+Installed-Size: 24059
+Filename: pool/main/tl/tl_0.0.22_linux_amd64v3.deb
+Size: 13269014
+MD5sum: 7aadceb87ed92f78b0fe4d337c27e95e
+SHA1: f002d200b99a91afd7acf5bea37710a11361452d
+SHA256: 8bb70a1a0d6e5f0bd826860774b9e68f80c2d1681244d654269f85d24767886d
+Priority: optional
+Homepage: https://www.previousnext.com.au
+Description: Command line time logger for Jira
+Architecture-Variant: amd64v3
+
