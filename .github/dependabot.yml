@@ -12,3 +12,8 @@ updates:
       go-deps:
         patterns:
           - "*"
+      gomod-security-deps:
+        applies-to: security-updates
+        patterns: [ "*" ]
+    cooldown:
+      default-days: 2
